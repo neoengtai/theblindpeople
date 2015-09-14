@@ -5,7 +5,7 @@ def dijkstra(graph,src,dest,visited=[],distances={},predecessors={}):
 		path=[]
 		pred=dest
 		while pred != None:
-			path.append(pred)
+			path.insert(0,pred)
 			pred=predecessors.get(pred,None)
 		return path
 	else :     

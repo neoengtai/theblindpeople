@@ -1,5 +1,6 @@
 import urllib.request, urllib.parse, json
 import math
+from dijkstra import dijkstra
 
 # Pythagoras theorem		
 def separation (v1, v2):
@@ -43,5 +44,6 @@ graph = get_graph(response)
 	
 adj_list = generate_adj_list(graph)
 
-for k,v in adj_list.items():
-	print ("Node id: " + str(k) + " Values: " + str(v))
+shortest = dijkstra(adj_list, 2, 11)
+
+print (shortest)
