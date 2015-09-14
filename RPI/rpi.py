@@ -26,24 +26,55 @@ def get_node_by_id (graph, id):
 	return None
 
 # Parse JSON 
-def get_graph (data):
-	decoded = json.loads(data.read().decode("utf-8"))
-	nodes = decoded['map']
+def parse_map (raw_map):
+	decoded = json.loads(raw_map.read().decode("utf-8"))
 	
+	#Change all strings to integer, split linkTo into list
+	nodes = decoded['map']
 	for node in nodes:
 		node['x'] = int(node['x'])
 		node['y'] = int(node['y'])
-		node['nodeId'] = int(node['nodeId'])
-		node['linkTo'] = [int(id) for id in node['linkTo'].split(', ')]
-		
-	return nodes
-
-params = urllib.parse.urlencode({"Building" : "COM1", "Level" : 2})
-response = urllib.request.urlopen("http://showmyway.comp.nus.edu.sg/getMapInfo.php?%s" % params)
-graph = get_graph(response)
+		node['linkTo'] = node['linkTo'].split(', ')
 	
-adj_list = generate_adj_list(graph)
+	return decoded
 
-shortest = dijkstra(adj_list, 2, 11)
+maps = {}
+places = {"Source": None, "Destination": None}
 
-print (shortest)
+for place in places:
+	while places[place] is None:
+		map = None
+		building = input (place + " building: ")
+		level = input (place + " level: ")
+		
+		if (building in maps and 
+			level in maps[building]):
+			#If a map already exist, just retrieve
+			map = maps[building][level]
+		else:
+			#Download the map
+			params = urllib.parse.urlencode({"Building" : building, "Level" : level})
+			response = urllib.request.urlopen("http://showmyway.comp.nus.edu.sg/getMapInfo.php?%s" % params)
+
+			#TODO handle 404 errors
+			map = parse_map(response)
+			if map['info'] is None:
+				print ("Invalid map!")
+				continue
+			else:
+				#Insert map into the collection
+				if building in maps:
+					maps[building].update({level : map})
+				else:
+					maps.update({building : {level : map}})
+		
+		nodeId = input(place + " nodeId: ")
+		#check if node exists
+		node = get_node_by_id(map['map'], nodeId)
+		if node is None:
+			print ("Invalid node!")
+			continue
+		else:
+			places.update({place : (building, level, nodeId)})
+
+print (places)
