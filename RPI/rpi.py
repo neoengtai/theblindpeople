@@ -34,7 +34,7 @@ def parse_map (raw_map):
 	for node in nodes:
 		node['x'] = int(node['x'])
 		node['y'] = int(node['y'])
-		node['linkTo'] = node['linkTo'].split(', ')
+		node['linkTo'] = [id.strip() for id in node['linkTo'].split(',')]
 	
 	return decoded
 
@@ -45,6 +45,7 @@ for place in places:
 	while places[place] is None:
 		map = None
 		building = input (place + " building: ")
+#Throws error if level is not number, because website does not return invalid json
 		level = input (place + " level: ")
 		
 		if (building in maps and 
@@ -56,7 +57,7 @@ for place in places:
 			params = urllib.parse.urlencode({"Building" : building, "Level" : level})
 			response = urllib.request.urlopen("http://showmyway.comp.nus.edu.sg/getMapInfo.php?%s" % params)
 
-			#TODO handle 404 errors
+#TODO handle 404 errors
 			map = parse_map(response)
 			if map['info'] is None:
 				print ("Invalid map!")
@@ -77,4 +78,35 @@ for place in places:
 		else:
 			places.update({place : (building, level, nodeId)})
 
-print (places)
+#Perform dijkstra
+#Node details are in a tuple. i.e. {Source : (building, level, nodeId)}
+shortest_path = None
+src_building = places['Source'][0]
+src_level = places['Source'][1]
+src_nodeId = places['Source'][2]
+dest_building = places['Destination'][0]
+dest_level = places['Destination'][1]
+dest_nodeId = places['Destination'][2]
+
+#Same building, same level
+if (src_building == dest_building and
+	src_level == dest_level):
+	
+	adj_list = generate_adj_list(maps[src_building][src_level]['map'])
+	shortest_path = dijkstra(adj_list, src_nodeId, dest_nodeId)
+	
+#Same building, different level (only up to 1 level difference)
+elif (src_building == dest_building and 
+		src_level != dest_level):
+	print ("TODO")
+	
+#Different building, same level
+elif (src_building != dest_building and 
+		src_level == dest_level):
+	print ("TODO")
+	
+#Different building, different level
+else:
+	print ("TODO")
+		
+print (shortest_path)
