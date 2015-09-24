@@ -1,11 +1,13 @@
+import math
+
 #Returns direction in degree
-def calculateAngle(currentX, currentY, nodeX, nodeY, northAt)
+def calculateAngle(currentX, currentY, nodeX, nodeY, northAt):
 	
 	#calculate distance
 	diffX = nodeX - currentX
 	diffY = nodeY - currentY
 	
-	angleRad = atan2(diffX, diffY)
+	angleRad = math.atan2(diffX, diffY)
 	
 	angleDeg = ((angleRad/math.pi) * 180)
 	

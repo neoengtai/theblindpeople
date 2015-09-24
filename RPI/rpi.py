@@ -1,6 +1,8 @@
 import urllib.request, urllib.parse, json
 import math
 from dijkstra import dijkstra
+from pathfinding import pathfinding
+
 
 # Pythagoras theorem		
 def separation (v1, v2):
@@ -109,4 +111,19 @@ elif (src_building != dest_building and
 else:
 	print ("TODO")
 		
-print (shortest_path)
+print ("Shortest path: ", shortest_path)
+
+#generate the list of nodes of the shortest path
+nodes = []
+for node in shortest_path:
+	nodes.append(get_node_by_id(maps['COM1']['2']['map'], node))
+
+while (1):
+	currX = int(input("CurrX: "))
+	currY = int(input("CurrY: "))
+	heading = int(input("Heading: "))
+	
+	rv = pathfinding(nodes, int(maps['COM1']['2']['info']['northAt']), currX, currY, heading)
+	
+	print ("Dist: ", rv[0])
+	print ("Turning angle: ", rv[1])
