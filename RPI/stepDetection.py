@@ -3,8 +3,8 @@
 #One oscillation happens when the value crosses zero three times(change from +ve to -ve and vice versa)
 #Each oscillation there is a max and min value. If the difference pass threshold considered a step
 
-CONST_STEP_THRESHOLD = 1.5 #adjust this to detect steps
-CONST_ZERO_LINE = 25 #adjust this to pick zero line
+CONST_STEP_THRESHOLD = 0.3 #adjust this to detect steps
+CONST_ZERO_LINE = 1 #adjust this to pick zero line
 def calculateAbsoluteMagnitude(x ,y ,z):
 	#calculate the magnitude from three axis
 	
@@ -33,7 +33,8 @@ def countSteps(accelData):
 	numSteps = 0
 	#accelData should be a list. In the list each index should contain x,y,z
 	for data in accelData:
-		magnitude = calculateAbsoluteMagnitude(data[0],data[1],data[2])
+		#magnitude = calculateAbsoluteMagnitude(data[0],data[1],data[2])
+		magntiude = data
 		print("Value is:",magnitude)
 		if (magnitude > CONST_ZERO_LINE):
 			positiveValue = 1
