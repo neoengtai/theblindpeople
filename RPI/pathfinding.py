@@ -10,7 +10,7 @@ def pathfinding (path, northAt, currX, currY, heading):
 			shortestDistance = separation
 			tempNode = node
 		else:
-			if (separation < shortestDistance):
+			if (separation <= shortestDistance):
 				shortestDistance = separation
 				tempNode = node
 	
