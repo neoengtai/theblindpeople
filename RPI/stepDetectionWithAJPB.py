@@ -1,7 +1,10 @@
 import adaptiveJerkPaceBuffer as ajpb
 import lowPassFilter as lpf
+import stepsDataCollector as stepsDataCollector
+import math
+import numpy as np
 
-def pull_data(dir_name, file_name):
+def pull_data(file_name):
 	f = open(file_name + '.csv')
 	xs = []
 	ys = []
@@ -24,7 +27,7 @@ def pull_data(dir_name, file_name):
 
 def stepDetection():
 	
-	stepsDataCollector()
+	stepsDataCollector.stepsDataCollector()
 	
 	x,y,z,r,timestamps = pull_data('accelerometer')
 	
@@ -35,6 +38,10 @@ def stepDetection():
 	
 	lowPassR = lpf.butter_lowpass_filter(r,cutoff,fs,order)
 	
-	peaks,troughs,average = ajpb.adaptive_jerk_pace_buffer(data, timestamps)
+	peaks,troughs,average = ajpb.adaptive_jerk_pace_buffer(lowPassR, timestamps)
 	
+	print("peaks", len(peaks))
 	print ("Number of steps", len(troughs))
+	print ("average", len(average))
+	
+stepDetection()
