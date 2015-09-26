@@ -1,6 +1,5 @@
 import adaptiveJerkPaceBuffer as ajpb
 import lowPassFilter as lpf
-import stepsDataCollector as stepsDataCollector
 import math
 import numpy as np
 
@@ -25,11 +24,13 @@ def pull_data(file_name):
 			rs.append(r)
 	return np.array(xs), np.array(ys), np.array(zs), np.array(rs), np.array(timestamps)
 
-def stepDetection():
-	
-	stepsDataCollector.stepsDataCollector()
-	
-	x,y,z,r,timestamps = pull_data('accelerometer')
+def stepDetection(timestamps,x,y,z):
+	#calculate r for each x,y,z
+	rs = []
+	for a,b,c in zip(x,y,z):
+		rs.append(math.sqrt(a**2 + b**2 + c**2))
+
+	x,y,z,r,timestamps = np.array(x), np.array(y), np.array(z), np.array(rs), np.array(timestamps)
 	
 	# Filter Params
 	order = 3
@@ -43,5 +44,5 @@ def stepDetection():
 	print("peaks", len(peaks))
 	print ("Number of steps", len(troughs))
 	print ("average", len(average))
-	
-stepDetection()
+
+	return troughs

@@ -35,22 +35,24 @@ imu.setGyroEnable(True)
 imu.setAccelEnable(True)
 imu.setCompassEnable(True)
 
+poll_interval = imu.IMUGetPollInterval()
+
 ##Tool to view sensor data
+input ("Press enter to continue...")
+count = 0
 while True:
-	opt = int(input("Get (1:Gyro, 2:Acc, 3:Compass, 4:Quit): "))
-	if opt == 4:
-		break
-	else:
-		if imu.IMURead():
+	if imu.IMURead():
+		if count >= 125:
 			data = imu.getIMUData()
-			if opt == 1:
-				print ("Gyro raw: %.5f %.5f %.5f" % imu.getGyro())
-			elif opt == 2:
-				print ("Acc raw: %.5f %.5f %.5f" % imu.getAccel())
-			elif opt == 3:
-				print ("Compass raw: %.5f %.5f %.5f" % imu.getCompass())
-		else:
-			print ("Read error!")
+			fusionPose = data["fusionPose"]
+			print("r: %5f p: %5f y: %5f" % (math.degrees(fusionPose[0]), 
+			        math.degrees(fusionPose[1]), math.degrees(fusionPose[2])))
+			print ("Gyro: %.5f %.5f %.5f" % imu.getGyro())
+			print ("Acc: %.5f %.5f %.5f" % imu.getAccel())
+			print ("Compass: %.5f %.5f %.5f" % imu.getCompass())
+			count = 0
+	count+=1
+	time.sleep(poll_interval*1.0/1000.0)
 			
 #Collecting acc data into file for graph plotting
 # poll_interval = 0.01 #poll every 10ms
