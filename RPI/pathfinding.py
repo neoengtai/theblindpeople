@@ -14,11 +14,14 @@ def pathfinding (path, northAt, currX, currY, heading):
 				shortestDistance = separation
 				tempNode = node
 	
+	print ("To node: ", tempNode["nodeId"])
 	angle = calculateAngle(currX, currY, tempNode['x'], tempNode['y'], northAt)
+
+	difference = angle - heading
 	
-	angle = angle - heading
+	if difference > 180:
+		difference -= 360
+	elif difference < -180:
+		difference += 360
 	
-	if angle > 180:
-		angle = angle - 360
-	
-	return (shortestDistance, angle)
+	return (shortestDistance, difference)
