@@ -83,22 +83,24 @@ class StepDecider:
 		return self.avgs
 
 
-def adaptive_jerk_pace_buffer(data, timestamps):
+def adaptive_jerk_pace_buffer(data, timestamps, headings):
 	
 	last_peak = None
 	last_trough = None
 	last_datum = None
 	last_slope = None
-
+	last_heading = None
+	
 	peaks = []
 	troughs = []
-
+	headingMoved = []
 	sd = StepDecider(PACE_BUFFER_MAX, JERK_BUFFER_MAX)
 
 	for i, datum in enumerate(data):
 
 		timestamp = timestamps[i]
-
+		potential_heading = headings[i]
+		
 		if last_datum:
 			if datum > last_datum:
 				slope = 'rising'
@@ -121,6 +123,7 @@ def adaptive_jerk_pace_buffer(data, timestamps):
 						if sd.decide(potential_peak, last_trough):
 							# print 'trough added'
 							troughs.append(last_trough)
+							headingMoved.append(last_heading)
 					# 		last_peak = potential_peak
 					# 	elif last_peak is None or  potential_peak['val'] > last_peak['val']:
 					# 		last_peak = potential_peak 
@@ -146,9 +149,10 @@ def adaptive_jerk_pace_buffer(data, timestamps):
 					# 		last_trough = potential_trough
 					# else:
 					last_trough = potential_trough
-
+					last_heading = potential_heading
+					
 			last_slope = slope
 		last_datum = datum
 		# print i
 
-	return np.array(peaks), np.array(troughs), np.array(sd.avgs)
+	return np.array(peaks), np.array(troughs), np.array(sd.avgs), np.array(headingMoved)
