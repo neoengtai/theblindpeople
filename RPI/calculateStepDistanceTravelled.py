@@ -17,4 +17,5 @@ def calculateStepDistance(averagePacing, headingMoved, northAt):
 	print("yTravel", yTravel)
 	
 	return xTravel, yTravel
-calculateStepDistance(50,[90,0,90,0,180,270],0)
+#this is a test
+#calculateStepDistance(50,[90,0,90,0,180,270],0)
