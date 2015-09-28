@@ -3,9 +3,10 @@ import pygame
 def audioFeedback(feedbackString):
 
 	pygame.mixer.init()
-	pygame.mixer.music.load(feedbackString + ".wav")
-	pygame.mixer.music.play()
-	while pygame.mixer.music.get_busy() == True:
-		print("play music")
+	for sound in feedbackString:
+		pygame.mixer.music.load(sound + ".wav")
+		pygame.mixer.music.play()
+		while pygame.mixer.music.get_busy() == True:
+			continue
 	
-audioFeedback("testing")
+audioFeedback(("one", "two", "three", "centimeters"))
