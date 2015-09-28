@@ -34,6 +34,7 @@ timestamps = []
 x = []
 y = []
 z = []
+headings = []
 
 print ("Press ctrl-c to stop data collection")
 try:
@@ -44,11 +45,12 @@ try:
 			x.append(float(10*data["accel"][0]))
 			y.append(float(10*data["accel"][1]))
 			z.append(float(10*data["accel"][2]))
+			headings.append(0)
 		time.sleep(poll_interval*1.0/1000.0)
 except KeyboardInterrupt:
 	pass
 
-steps = sd.stepDetection(timestamps,x,y,z)
+steps = sd.stepDetection(timestamps,x,y,z,headings)
 numSteps = len(steps)
 if numSteps == 0:
 	print ("No steps detected!")
