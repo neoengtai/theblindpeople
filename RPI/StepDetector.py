@@ -45,8 +45,8 @@ def stepDetection(timestamps,x,y,z, headings):
 	
 	peaks,troughs,average, headingMoved = ajpb.adaptive_jerk_pace_buffer(lowPassR, timestamps, headings)
 	
-	print("peaks", len(peaks))
-	print ("Number of steps", len(troughs))
-	print ("average", len(average))
-	print ("headingMoved", len(headingMoved))
+	#print("peaks", len(peaks))
+	#print ("Number of steps", len(troughs))
+	#print ("average", len(average))
+	#print ("headingMoved", len(headingMoved))
 	return headingMoved

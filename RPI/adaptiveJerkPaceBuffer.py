@@ -64,9 +64,9 @@ class StepDecider:
 			float(pace_avg)/10**8,
 		])
 
-		print ('jerk', jerk, jerk_avg, jerk > jerk_avg * .5)
+		#print ('jerk', jerk, jerk_avg, jerk > jerk_avg * .5)
 		if jerk >= jerk_avg * .5 or jerk >= JERK * 2:
-			print ('pace', float(pace)/10**8, float(pace_avg)/10**8, pace >= pace_avg * .5, pace <= pace_avg * 2, pace >= pace_avg * .5 and pace <= pace_avg * 2)
+			#print ('pace', float(pace)/10**8, float(pace_avg)/10**8, pace >= pace_avg * .5, pace <= pace_avg * 2, pace >= pace_avg * .5 and pace <= pace_avg * 2)
 			if (pace >= pace_avg * .5 and pace <= pace_avg * 2):
 				self.jerk_buffer.append(jerk)
 				self.pace_buffer.append(pace)

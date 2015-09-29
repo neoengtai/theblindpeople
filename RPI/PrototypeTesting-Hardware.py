@@ -66,6 +66,11 @@ imu.setGyroEnable(True)
 imu.setAccelEnable(True)
 imu.setCompassEnable(True)
 
+if (not pressure.pressureInit()):
+    print("Pressure sensor Init Failed")
+else:
+    print("Pressure sensor Init Succeeded")
+
 poll_interval = imu.IMUGetPollInterval()*1.0/1000.0
 
 timestamps = []
@@ -106,13 +111,14 @@ while True:
 				currY += tempY
 				distance = math.hypot(currX, currY)
 
-				print ("Distance: %6.0f Heading: %3.1f Altitude: %6.0f" % (distance, heading, altitude))
+				print ("Distance: %6.0f Heading: %3.1f Altitude: %6.0f X: %d Y: %d" % (distance, heading, altitude, currX, currY))
 
 				del timestamps[:]
 				del x[:]
 				del y[:]
 				del z[:]
 				del headings[:]
+				
 
 			#just to check performance
 			if dt >= 0.01:
