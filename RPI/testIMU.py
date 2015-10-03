@@ -5,7 +5,7 @@ import RTIMU
 import os.path
 import time
 import math
-from stepDetection import countSteps
+import StepDetector as sd
 
 SETTINGS_FILE = "RTIMULib"
 
@@ -43,18 +43,18 @@ count = 0
 while True:
 	if imu.IMURead():
 		if count >= 125:
-			data = imu.getIMUData()
-			fusionPose = data["fusionPose"]
-			print("r: %5f p: %5f y: %5f" % (math.degrees(fusionPose[0]), 
-			        math.degrees(fusionPose[1]), math.degrees(fusionPose[2])))
-			print ("Gyro: %.5f %.5f %.5f" % imu.getGyro())
-			print ("Acc: %.5f %.5f %.5f" % imu.getAccel())
+			# data = imu.getIMUData()
+			# fusionPose = data["fusionPose"]
+			# print("r: %5f p: %5f y: %5f" % (math.degrees(fusionPose[0]), 
+			#         math.degrees(fusionPose[1]), math.degrees(fusionPose[2])))
+			# print ("Gyro: %.5f %.5f %.5f" % imu.getGyro())
+			# print ("Acc: %.5f %.5f %.5f" % imu.getAccel())
 			print ("Compass: %.5f %.5f %.5f" % imu.getCompass())
 			count = 0
 	count+=1
 	time.sleep(poll_interval*1.0/1000.0)
 			
-#Collecting acc data into file for graph plotting
+# #Collecting acc data into file for graph plotting
 # poll_interval = 0.01 #poll every 10ms
 # count = 0
 # xyzSum = [0,0,0]
@@ -62,12 +62,12 @@ while True:
 #perform zeroing on acc by averaging 500 readings
 # print ("Hold the IMU in a stable position...")
 # while count < 500:
-	# if imu.IMURead():
-		# xyzSum[0] += imu.getAccel()[0]
-		# xyzSum[1] += imu.getAccel()[1]
-		# xyzSum[2] += imu.getAccel()[2]
-		# count += 1
-		#time.sleep(poll_interval)
+# 	if imu.IMURead():
+# 		xyzSum[0] += imu.getAccel()[0]
+# 		xyzSum[1] += imu.getAccel()[1]
+# 		xyzSum[2] += imu.getAccel()[2]
+# 		count += 1
+# 		time.sleep(poll_interval)
 		
 # gravity = (xyzSum[0]/500, xyzSum[1]/500, xyzSum[2]/500)
 # print ("Gravity :", gravity)
@@ -75,17 +75,27 @@ while True:
 # input("Press enter to start...")
 
 # try:
-	# dataList = []
-	# f = open('data.csv', 'w')
-	# f.write("Value\r\n")
-	# while True:
-		# if imu.IMURead():
-			# value = projection(imu.getAccel(), gravity)
-			# dataList.append(value)
-			# f.write("%f\r\n" % (value))
+# 	# timestamps = []
+# 	# x = []
+# 	# y = []
+# 	# z = []
+# 	# heading = []
+
+# 	f = open('data.csv', 'w')
+# 	f.write("Time,Value\r\n")
+# 	while True:
+# 		if imu.IMURead():
+# 			value = projection(imu.getAccel(), gravity)
+# 			# data = imu.getIMUData()
+# 			# timestamps.append(float(data["timestamp"]))
+# 			# x.append(float(10*data["accel"][0]))
+# 			# y.append(float(10*data["accel"][1]))
+# 			# z.append(float(10*data["accel"][2]))
+# 			# heading.append(0)
+# 			f.write("%d,%f\r\n" % (imu.getIMUData()["timestamp"], value))
 			
 # except KeyboardInterrupt:
-	# print ("Saving file...")
-	# f.close()
-	# print ("File saved...")
-	# countSteps(dataList)
+# 	print ("Saving file...")
+# 	f.close()
+# 	print ("File saved...")
+# 	#sd.stepDetection(timestamps,x,y,z,heading)

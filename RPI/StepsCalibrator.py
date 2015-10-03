@@ -35,29 +35,42 @@ x = []
 y = []
 z = []
 headings = []
+totalSteps = 0
 
 print ("Press ctrl-c to stop data collection")
 try:
+	prevTime = 0
 	while True:
 		if imu.IMURead():
 			data = imu.getIMUData()
 			timestamps.append(float(data["timestamp"]))
-			x.append(float(10*data["accel"][0]))
-			y.append(float(10*data["accel"][1]))
-			z.append(float(10*data["accel"][2]))
+			x.append(float(data["accel"][0]))
+			y.append(float(data["accel"][1]))
+			z.append(float(data["accel"][2]))
 			headings.append(0)
-		time.sleep(poll_interval*1.0/1000.0)
+		#calculate steps and clear all buffers every 5 seconds
+		if time.time() - prevTime >= 4.0:
+			prevTime = time.time()
+			steps = sd.stepDetection(timestamps,x,y,z,headings)
+			totalSteps += len(steps)
+			del timestamps[:]
+			del x[:]
+			del y[:]
+			del z[:]
+			del headings[:]
 except KeyboardInterrupt:
+	steps = sd.stepDetection(timestamps,x,y,z,headings)
+	totalSteps += len(steps)
 	pass
 
-steps = sd.stepDetection(timestamps,x,y,z,headings)
-numSteps = len(steps)
-if numSteps == 0:
+
+if totalSteps == 0:
 	print ("No steps detected!")
 	exit(0)
 
+print ("No. of steps: %d" % totalSteps)
 distance = float(input("Enter the distance travelled(in centimeters): "))
-pace = distance/numSteps
+pace = distance/totalSteps
 print ("Pace(cm/step): ", pace)
 
 #Save calibration data to file

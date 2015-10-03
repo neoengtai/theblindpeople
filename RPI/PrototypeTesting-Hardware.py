@@ -93,15 +93,15 @@ while True:
 			data = imu.getIMUData()
 			# multiplied by 10 for the steps library
 			timestamps.append(float(data["timestamp"]))
-			x.append(float(10*data["accel"][0]))
-			y.append(float(10*data["accel"][1]))
-			z.append(float(10*data["accel"][2]))
+			x.append(float(data["accel"][0]))
+			y.append(float(data["accel"][1]))
+			z.append(float(data["accel"][2]))
 			headings.append(math.degrees(data["fusionPose"][IMU_MOUNT_DIRECTION]))
 			
-			if loopTime - printTime >= 1.0:
+			if loopTime - printTime >= 4.0:
 				printTime = loopTime
 				
-				heading = math.degrees(data["fusionPose"][IMU_MOUNT_DIRECTION])
+				heading = math.degrees(math.atan2(data["compass"][1], data["compass"][0]))* (-1)
 				(data["pressureValid"], data["pressure"], data["temperatureValid"], data["temperature"]) = pressure.pressureRead()
 				if (data["pressureValid"]):
 					altitude = computeHeight(data["pressure"])
@@ -121,5 +121,5 @@ while True:
 				
 
 			#just to check performance
-			if dt >= 0.01:
-				print ("dt: %f" % dt)
+			# if dt >= 0.01:
+			# 	print ("dt: %f" % dt)

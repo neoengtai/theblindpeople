@@ -4,13 +4,13 @@ import collections
 import numpy as np
 #Average seconds per step
 #0.4 seconds
-PACE = 400000
+PACE = 600000
 #400000000
 PACE_BUFFER_MAX = 20
 
 #Average step jerk
 #2.5 m/s**3
-JERK = 2.5
+JERK = 0.17
 JERK_BUFFER_MAX = 20
 
 
@@ -28,7 +28,7 @@ class StepDecider:
 
 		#Graphing Purpose Array
 		# 0 - timestamp
-		# 1 - Jerk Average
+			# 1 - Jerk Average
 		# 2 - Pace Duration
 		self.avgs = []
 
