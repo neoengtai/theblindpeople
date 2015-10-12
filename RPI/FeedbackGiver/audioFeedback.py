@@ -15,6 +15,3 @@ class audioFeedback:
 			pygame.mixer.music.play()
 			while pygame.mixer.music.get_busy() == True:
 				continue
-
-af = audioFeedback()
-af.playSound("Enter Starting and Ending Location")
