@@ -4,13 +4,13 @@ import collections
 import numpy as np
 #Average seconds per step
 #0.4 seconds
-PACE = 600000
+PACE = 800000 #0.8s for our RTIMU timestamps
 #400000000
 PACE_BUFFER_MAX = 20
 
 #Average step jerk
 #2.5 m/s**3
-JERK = 0.17
+JERK = 0.125
 JERK_BUFFER_MAX = 20
 
 
@@ -64,9 +64,9 @@ class StepDecider:
 			float(pace_avg)/10**8,
 		])
 
-		#print ('jerk', jerk, jerk_avg, jerk > jerk_avg * .5)
+		# print ('jerk', jerk, jerk_avg, jerk > jerk_avg * .5)
 		if jerk >= jerk_avg * .5 or jerk >= JERK * 2:
-			#print ('pace', float(pace)/10**8, float(pace_avg)/10**8, pace >= pace_avg * .5, pace <= pace_avg * 2, pace >= pace_avg * .5 and pace <= pace_avg * 2)
+			# print ('pace', float(pace)/10**8, float(pace_avg)/10**8, pace >= pace_avg * .5, pace <= pace_avg * 2, pace >= pace_avg * .5 and pace <= pace_avg * 2)
 			if (pace >= pace_avg * .5 and pace <= pace_avg * 2):
 				self.jerk_buffer.append(jerk)
 				self.pace_buffer.append(pace)
@@ -83,23 +83,23 @@ class StepDecider:
 		return self.avgs
 
 
-def adaptive_jerk_pace_buffer(data, timestamps, headings):
+def adaptive_jerk_pace_buffer(data, timestamps): #, headings):
 	
 	last_peak = None
 	last_trough = None
 	last_datum = None
 	last_slope = None
-	last_heading = None
+	#last_heading = None
 	
 	peaks = []
 	troughs = []
-	headingMoved = []
+	#headingMoved = []
 	sd = StepDecider(PACE_BUFFER_MAX, JERK_BUFFER_MAX)
 
 	for i, datum in enumerate(data):
 
 		timestamp = timestamps[i]
-		potential_heading = headings[i]
+		#potential_heading = headings[i]
 		
 		if last_datum:
 			if datum > last_datum:
@@ -123,7 +123,7 @@ def adaptive_jerk_pace_buffer(data, timestamps, headings):
 						if sd.decide(potential_peak, last_trough):
 							# print 'trough added'
 							troughs.append(last_trough)
-							headingMoved.append(last_heading)
+							#headingMoved.append(last_heading)
 					# 		last_peak = potential_peak
 					# 	elif last_peak is None or  potential_peak['val'] > last_peak['val']:
 					# 		last_peak = potential_peak 
@@ -149,10 +149,10 @@ def adaptive_jerk_pace_buffer(data, timestamps, headings):
 					# 		last_trough = potential_trough
 					# else:
 					last_trough = potential_trough
-					last_heading = potential_heading
+					#last_heading = potential_heading
 					
 			last_slope = slope
 		last_datum = datum
 		# print i
 
-	return np.array(peaks), np.array(troughs), np.array(sd.avgs), np.array(headingMoved)
+	return np.array(peaks), np.array(troughs), np.array(sd.avgs)#, np.array(headingMoved)
