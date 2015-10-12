@@ -11,7 +11,7 @@ class audioFeedback:
 		
 		#split the string and play the sound
 		for sound in self.feedbackString.split(' '):
-			pygame.mixer.music.load("../voice/" + sound + ".wav")
+			pygame.mixer.music.load("./voice/" + sound + ".wav")
 			pygame.mixer.music.play()
 			while pygame.mixer.music.get_busy() == True:
 				continue
