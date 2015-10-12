@@ -1,12 +1,20 @@
 import pygame
-	
-def audioFeedback(feedbackString):
 
-	pygame.mixer.init()
-	for sound in feedbackString:
-		pygame.mixer.music.load(sound + ".wav")
-		pygame.mixer.music.play()
-		while pygame.mixer.music.get_busy() == True:
-			continue
-	
-audioFeedback(("one", "two", "three", "centimeters"))
+class audioFeedback:
+ 
+	def __init__(self):
+        	pygame.mixer.init()
+        		
+	def playSound(self,feedbackString):
+		#convert to lowercase
+		self.feedbackString = feedbackString.lower()
+		
+		#split the string and play the sound
+		for sound in self.feedbackString.split(' '):
+			pygame.mixer.music.load("../voice/" + sound + ".wav")
+			pygame.mixer.music.play()
+			while pygame.mixer.music.get_busy() == True:
+				continue
+
+af = audioFeedback()
+af.playSound("Enter Starting and Ending Location")
