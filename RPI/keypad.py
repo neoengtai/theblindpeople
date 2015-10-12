@@ -79,19 +79,18 @@ class keypad():
                 GPIO.setup(self.ROW[i], GPIO.IN, pull_up_down=GPIO.PUD_UP) 
         for j in range(len(self.COLUMN)):
                 GPIO.setup(self.COLUMN[j], GPIO.IN, pull_up_down=GPIO.PUD_UP)
-         
-def testKeypad():
-    # Initialize the keypad class
-    kp = keypad()
-     
-    # Loop while waiting for a keypress
-    digit = None
-    while 1:
-		digit = kp.getKey()
+   
+    #return user input after '#' is being pressed      
+    def getUserInput(self):	     
+	# Loop while waiting for a keypress
+	digit = None
+	input = ""
+	while 1:
+		digit = self.getKey()
 		if digit is "#":
-			break
+			return input
 		elif digit is not None:
-			print digit
+			input += str(digit)
 			time.sleep(1)
 	
-testKeypad()
+
