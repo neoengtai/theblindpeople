@@ -1,5 +1,5 @@
-import adaptiveJerkPaceBuffer as ajpb
-import lowPassFilter as lpf
+from . import adaptiveJerkPaceBuffer as ajpb
+from . import lowPassFilter as lpf
 import math
 import numpy as np
 

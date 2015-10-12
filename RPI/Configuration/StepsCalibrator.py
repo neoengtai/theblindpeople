@@ -5,7 +5,7 @@ import RTIMU
 import os.path
 import time
 import math
-import StepDetector as sd
+from PositionTracker import StepDetector as sd
 
 SETTINGS_FILE = "RTIMULib"
 CALIBRATION_FILE = "profile.ini"

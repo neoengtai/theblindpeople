@@ -1,5 +1,5 @@
 import math
-from calculateAngle import calculateAngle
+from . import calculateAngle
 
 def pathfinding (path, northAt, currX, currY, heading):	
 	shortestDistance = None;
