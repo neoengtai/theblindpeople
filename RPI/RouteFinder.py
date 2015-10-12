@@ -1,4 +1,31 @@
-def dijkstra(graph,src,dest,visited=[],distances={},predecessors={}):
+class RouteFinder:
+	def findRoute(self, mapManager, srcNode, srcBuilding, srcLevel, destNode, destBuilding, destLevel):
+		shortestPath = None
+
+		#Same building, same level
+		if (src_building == dest_building and
+			src_level == dest_level):
+			
+			adj_list = mapManager.generate_adj_list(srcBuilding,srcLevel)
+			shortestPath = dijkstra(adj_list, src_nodeId, dest_nodeId)
+			
+		#Same building, different level (only up to 1 level difference)
+		elif (src_building == dest_building and 
+				src_level != dest_level):
+			print ("TODO")
+			
+		#Different building, same level
+		elif (src_building != dest_building and 
+				src_level == dest_level):
+			print ("TODO")
+			
+		#Different building, different level
+		else:
+			print ("TODO")
+
+		return shortestPath
+
+	def dijkstra(graph,src,dest,visited=[],distances={},predecessors={}):
 	# calculates shortest path tree that starts from src
 	
 	if src == dest:
