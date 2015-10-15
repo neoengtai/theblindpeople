@@ -56,11 +56,12 @@ class FeedbackGiver():
 			difference += 360	#right
 		
 		audioDir = self.dataToString(0,difference)
-		self.audioFeedback((str(shortestDistance), audioDir))
+		audioDist = self.dataToString(1,shortestDistance) + " meters"
+		self.audioFeedback((audioDist, audioDir))
 		
 	# Convert data to string format for audio feedback
 	# function 0 : direction
-	# function 1 : distance(meters)
+	# function 1 : numbers
 	def dataToString(self,function, data):
 		result = [] 
 		if function == 0:
@@ -77,6 +78,4 @@ class FeedbackGiver():
 		elif function == 1:
 			#convert list to string
 			stringData = ' '.join(list(str(data)))
-			#concat meters
-			stringData += " meters"
 			return stringData
