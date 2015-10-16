@@ -12,7 +12,7 @@ MIN_WINDOW_SIZE = 25
 # Too low may result in more false positives. Too high results in less counts
 MIN_AMP_X = 0.05
 MIN_AMP_Y = 0.1
-MIN_AMP_Z = 0.16
+MIN_AMP_Z = 0.15
 
 # Filter Params
 FILTER_ORDER = 3
@@ -116,12 +116,6 @@ def findSteps(data):
 			# Convert to x,y,z list
 			listX, listY, listZ = list(xWindow), list(yWindow), list(zWindow)
 
-			# Filter
-			# fx = lpf.butter_lowpass_filter(listX,FILTER_CUTOFF,FILTER_FS,FILTER_ORDER)
-			# fy = lpf.butter_lowpass_filter(listY,FILTER_CUTOFF,FILTER_FS,FILTER_ORDER)
-			# fz = lpf.butter_lowpass_filter(listZ,FILTER_CUTOFF,FILTER_FS,FILTER_ORDER)
-			fx,fy,fz = listX,listY,listZ
-			
 			# Identify steps
 			# X given high priority, since y,z can be true if user moves on the spot
 			if decideX(listX, MIN_AMP_X):
@@ -130,7 +124,7 @@ def findSteps(data):
 				yd = not (ySlope == slope) 
 				zd = decideZ(listZ, MIN_AMP_Z)
 
-				# print ("Y ", yd, " Z ", zd)
+				#print ("Y ", yd, " Z ", zd)
 
 				# If step found, clear windows, restart from top
 				# if not (ySlope == slope) or decideZ(fz, MIN_AMP_Z):
