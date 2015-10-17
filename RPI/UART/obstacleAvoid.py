@@ -1,5 +1,11 @@
 #assuming arguement is string
 import math
+import sys
+sys.path.append('/home/pi/theblindpeople/RPI/')
+import FeedbackGiver as fg
+
+myFG = fg.FeedbackGiver()
+
 def intepretUART(dataSet):
 	
 	splitData = dataSet.split('\n')
@@ -19,8 +25,15 @@ def intepretUART(dataSet):
 	
 	return deviceValues
 
-deviceValues = intepretUART("F123\nL12\nR9\nD1234")
-print("deviceValues: ",deviceValues)	
+
+def obstacleAvoid(deviceValues):
+	for device in deviceValues:
+		if device[0] == 'B':
+			myFG.audioFeedback("beware of steps")
+
+#deviceValues = intepretUART("F123\nL12\nR9\nB1234\nT100")
+#print("deviceValues: ",deviceValues)	
+#obstacleAvoid(deviceValues)
 #def obstacleAvoid(deviceValues, currHeading, northAt, instructionHeading):
 	
 	

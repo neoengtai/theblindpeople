@@ -53,32 +53,33 @@ class FeedbackGiver():
 					shortestDistance = separation
 					tempNode = node
 		
-		print ("To node: ", tempNode["nodeId"])
+		#print ("To node: ", tempNode["nodeId"])
 		angle = self.getAngle(currX, currY, tempNode['x'], tempNode['y'], northAt)
 
+		#difference = angle - ((heading + 360) %360)
 		difference = angle - heading
-		
 		if difference > 180:
 			difference -= 360 	#left
 		elif difference < -180:
 			difference += 360	#right
 		
-		audioDir = self.dataToString(0,difference)
-		audioDist = str(shortestDistance) + "meters"
-		self.audioFeedback((audioDist, audioDist))
+		feedbackString = self.dataToString(0,difference)
+		#feedbackString = feedbackString + " " + str(int(shortestDistance)) + " meters"
+		self.audioFeedback(feedbackString)
+		return shortestDistance
 		
 	# Convert data to string format for audio feedback
 	# function 0 : direction
 	def dataToString(self,function, data):
 		result = [] 
 		if function == 0:
-			if (data == 0):
+			if data in range(-20,20):
 				return "continue straight"
-			if (data > 0 and data <= 45):
+			elif data in range(20,65):
 				return "turn slight right"
-			elif (data > 0 and data > 45):
+			elif data in range(65,180):
 				return "turn right"
-			elif (data < 0 and data >= -45):
+			elif data in range(-65,-20):
 				return "turn slight left"
-			elif (data < 0 and data < -45):
+			elif data in range(-180,-65):
 				return "turn left"
