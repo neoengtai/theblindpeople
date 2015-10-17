@@ -11,10 +11,18 @@ class FeedbackGiver():
 
 		#split the string and play the sound
 		for sound in feedbackString.split(' '):
-			pygame.mixer.music.load("./voice/" + sound + ".wav")
-			pygame.mixer.music.play()
-			while pygame.mixer.music.get_busy() == True:
-				continue
+			if sound.isdigit() == True:
+				sound = ' '.join(list(sound))
+				for number in sound.split(' '):
+					pygame.mixer.music.load("/home/pi/theblindpeople/RPI/voice/" + number + ".wav")
+					pygame.mixer.music.play()
+					while pygame.mixer.music.get_busy() == True:
+						continue
+			else:
+				pygame.mixer.music.load("/home/pi/theblindpeople/RPI/voice/" + sound + ".wav")
+				pygame.mixer.music.play()
+				while pygame.mixer.music.get_busy() == True:
+					continue
 	
 	#Returns direction in degree
 	def getAngle(self, currentX, currentY, nodeX, nodeY, northAt):
@@ -56,12 +64,11 @@ class FeedbackGiver():
 			difference += 360	#right
 		
 		audioDir = self.dataToString(0,difference)
-		audioDist = self.dataToString(1,shortestDistance) + " meters"
-		self.audioFeedback((audioDist, audioDir))
+		audioDist = str(shortestDistance) + "meters"
+		self.audioFeedback((audioDist, audioDist))
 		
 	# Convert data to string format for audio feedback
 	# function 0 : direction
-	# function 1 : numbers
 	def dataToString(self,function, data):
 		result = [] 
 		if function == 0:
@@ -75,7 +82,3 @@ class FeedbackGiver():
 				return "turn slight left"
 			elif (data < 0 and data < -45):
 				return "turn left"
-		elif function == 1:
-			#convert list to string
-			stringData = ' '.join(list(str(data)))
-			return stringData
