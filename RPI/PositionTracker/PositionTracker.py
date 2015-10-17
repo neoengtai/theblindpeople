@@ -1,5 +1,5 @@
-#import StepDetector as sd
-import stepDetector2 as sd
+import StepCounter as sc
+
 class PositionTracker:
 
 	def __init__(self, x, y, avgPace):
@@ -15,7 +15,7 @@ class PositionTracker:
 		return self.currentPositionX, self.currentPositionY
 		
 	def updatePosition(self, dataSet, northAt):
-		headingMoved = sd.stepDetection(dataSet)
-		xTravel, yTravel = sd.calculateStepDistance(self.pace, headingMoved, northAt)
+		headingMoved = sc.stepDetection(dataSet)
+		xTravel, yTravel = sc.calculateStepDistance(self.pace, headingMoved, northAt)
 		self.currentPositionX = self.currentPositionX + xTravel
 		self.currentPositionY = self.currentPositionY + yTravel
