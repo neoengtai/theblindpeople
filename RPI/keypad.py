@@ -8,7 +8,7 @@
 import RPi.GPIO as GPIO
 import time
  
-class keypad():
+class Keypad:
     # CONSTANTS   
     KEYPAD = [
     [1,2,3],
@@ -82,15 +82,16 @@ class keypad():
    
     #return user input after '#' is being pressed      
     def getUserInput(self):	     
-	# Loop while waiting for a keypress
-	digit = None
-	input = ""
-	while 1:
-		digit = self.getKey()
-		if digit is "#":
-			return input
-		elif digit is not None:
-			input += str(digit)
-			time.sleep(1)
-	
+	   # Loop while waiting for a keypress
+    	digit = None
+    	input = ""
+    	while 1:
+    		digit = self.getKey()
+    		if digit is "#":
+    			return input
+    		elif digit is not None:
+    			input += str(digit)
+    			time.sleep(1)
 
+    def dummyGetKey(self):
+        return input()
