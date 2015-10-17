@@ -14,15 +14,15 @@ class FeedbackGiver():
 			if sound.isdigit() == True:
 				sound = ' '.join(list(sound))
 				for number in sound.split(' '):
-					pygame.mixer.music.load("/home/pi/theblindpeople/RPI/voice/" + number + ".wav")
-					pygame.mixer.music.play()
-					while pygame.mixer.music.get_busy() == True:
-						continue
+					self.playAudio(number)
 			else:
-				pygame.mixer.music.load("/home/pi/theblindpeople/RPI/voice/" + sound + ".wav")
-				pygame.mixer.music.play()
-				while pygame.mixer.music.get_busy() == True:
-					continue
+				self.playAudio(sound)
+	
+	def playAudio(self, sound):
+		pygame.mixer.music.load("/home/pi/theblindpeople/RPI/voice/" + sound + ".wav")
+		pygame.mixer.music.play()
+		while pygame.mixer.music.get_busy() == True:
+			continue
 	
 	#Returns direction in degree
 	def getAngle(self, currentX, currentY, nodeX, nodeY, northAt):
