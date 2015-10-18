@@ -76,6 +76,7 @@ def loadUserProfile():
 		f = open(CALIBRATION_FILE)
 		val = f.readline().split('=')
 		pace = float(val[1])
+	return pace
 
 def computeHeight(pressure):
 	#  computeHeight() - the conversion uses the formula:
@@ -107,7 +108,7 @@ def THREAD_IMU():
 				pt = time.time()
 				imu_Q.put(buf)
 				print ("Put time: ", (time.time() - pt))
-				print ("Rate: ", len(buf)/(pt - s_time))
+				print ("IMURate: ", len(buf)/(pt - s_time))
 				break
 
 			if imu.IMURead():
@@ -173,7 +174,7 @@ imu_Q = None
 thread_imu_pause_flag = False
 
 # -------------------------------Init Section----------------------------------
-loadUserProfile()
+pace = loadUserProfile()
 imu_Q = queue.Queue()
 keypad = KP.Keypad()
 #init Arduino
