@@ -1,5 +1,7 @@
 import json
+from PositionTracker import lowPassFilter as lpf
 import collections
+import math
 
 # Number of data points in 1 step(pace/sampling_rate)
 # Use the longest time(slowest pace) taken for 1 step here
@@ -131,8 +133,8 @@ def findSteps(data):
 					xWindow.clear()
 					yWindow.clear()
 					zWindow.clear()
-					rv.append(reading[3])
-					#print(reading[0]) # printing the timestamps
+					rv.append(reading[4])
+					#print(reading[4]) # printing the timestamps
 
 				ySlope = slope
 		
@@ -152,16 +154,16 @@ def calculateStepDistance(averagePacing, headingMoved, northAt):
 		xTravel = xTravel + distX
 		yTravel = yTravel + distY
 	
-	#print("xTravel", xTravel)
-	#print("yTravel", yTravel)
+	print("xTravel", xTravel)
+	print("yTravel", yTravel)
 	
 	return xTravel, yTravel
 #TEST
-# f = open("accel.json","r")
-# js = json.load(f)
+#f = open("accel.json","r")
+#js = json.load(f)
 
-# for val in js:
-# 	val.append(0)
+#for val in js:
+#	val.append(0)
 
-# steps = findSteps(js)
-# print (len(steps))
+#steps = findSteps(js)
+#print (len(steps))

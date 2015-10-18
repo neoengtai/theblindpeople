@@ -1,4 +1,4 @@
-from . import StepCounter as sc
+from PositionTracker import StepCounter as sc
 
 class PositionTracker:
 
@@ -15,7 +15,7 @@ class PositionTracker:
 		return self.currentPositionX, self.currentPositionY
 		
 	def updatePosition(self, dataSet, northAt):
-		headingMoved = sc.stepDetection(dataSet)
+		headingMoved = sc.findSteps(dataSet)
 		xTravel, yTravel = sc.calculateStepDistance(self.pace, headingMoved, northAt)
 		self.currentPositionX = self.currentPositionX + xTravel
 		self.currentPositionY = self.currentPositionY + yTravel
