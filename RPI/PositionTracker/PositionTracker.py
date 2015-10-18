@@ -1,4 +1,4 @@
-import StepCounter as sc
+from . import StepCounter as sc
 
 class PositionTracker:
 

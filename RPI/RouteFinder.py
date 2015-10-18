@@ -1,12 +1,18 @@
 def findRoute(mapManager, srcNode, srcBuilding, srcLevel, destNode, destBuilding, destLevel):
-	shortestPath = None
+	paths = []
 
 	#Same building, same level
 	if (srcBuilding == destBuilding and
 		srcLevel == destLevel):
 
+		route = {}
+		route.update({"building":srcBuilding})
+		route.update({"level":srcLevel})
 		adj_list = mapManager.generate_adj_list(srcBuilding,srcLevel)
 		shortestPath = dijkstra(adj_list, srcNode, destNode)
+		route.update({"path":shortestPath})
+
+		paths.append(route)
 
 	#Same building, different level (only up to 1 level difference)
 	elif (srcBuilding == destBuilding and 
@@ -22,7 +28,7 @@ def findRoute(mapManager, srcNode, srcBuilding, srcLevel, destNode, destBuilding
 	else:
 		print ("TODO")
 
-	return shortestPath
+	return paths
 
 def dijkstra(graph,src,dest,visited=[],distances={},predecessors={}):
 	# calculates shortest path tree that starts from src
