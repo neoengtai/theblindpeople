@@ -222,7 +222,7 @@ for route in routes:
 			feedbackCount -= 1
 
 			currentPos = positionTracker.getCurrentPosition()
-			if math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 2000:
+			if math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 100:
 				# audio feedback node reached
 				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node reached"])
 				thread_audio.start()
