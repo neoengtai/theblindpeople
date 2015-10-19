@@ -154,8 +154,8 @@ def calculateStepDistance(averagePacing, headingMoved, northAt):
 		xTravel = xTravel + distX
 		yTravel = yTravel + distY
 	
-	print("xTravel", xTravel)
-	print("yTravel", yTravel)
+	#print("xTravel", xTravel)
+	#print("yTravel", yTravel)
 	
 	return xTravel, yTravel
 #TEST
