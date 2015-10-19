@@ -1,11 +1,9 @@
 import sys, getopt
-
-sys.path.append('.')
 import RTIMU
 import os.path
 import time
 import math
-import PositionTracker as pt
+from PositionTracker import PositionTracker as pt
 
 #  computeHeight() - the conversion uses the formula:
 #
@@ -28,8 +26,8 @@ import PositionTracker as pt
 def computeHeight(pressure):
     return 44330.8 * (1 - pow(pressure / 1013.25, 0.190263));
 
-SETTINGS_FILE = "RTIMULib"
-CALIBRATION_FILE = "profile.ini"
+SETTINGS_FILE = "/home/pi/theblindpeople/RPI/Configuration/RTIMULib"
+CALIBRATION_FILE = "/home/pi/theblindpeople/RPI/Configuration/profile.ini"
 
 # 0: Z point front, X point down
 # 1: Z point left, X point front
@@ -45,7 +43,7 @@ else:
 	f = open(CALIBRATION_FILE)
 	val = f.readline().split('=')
 	pace = float(val[1])
-
+	print(pace)
 
 if not os.path.exists(SETTINGS_FILE + ".ini"):
 	print("Settings file does not exist, will be created")
@@ -100,7 +98,7 @@ while True:
 			# z.append(float(data["accel"][2]))
 			# headings.append(math.degrees(data["fusionPose"][IMU_MOUNT_DIRECTION]))
 			dataSet.append([float(data["timestamp"]), float(data["accel"][0]), float(data["accel"][1]), float(data["accel"][2]), math.degrees(data["fusionPose"][IMU_MOUNT_DIRECTION])])
-			
+			#print(math.degrees(data["fusionPose"][IMU_MOUNT_DIRECTION]))
 			if loopTime - printTime >= 4.0:
 				printTime = loopTime
 				
@@ -111,14 +109,15 @@ while True:
 				tracker.updatePosition(dataSet,0)
 				currX, currY = tracker.getCurrentPosition()
 				distance = math.hypot(currX, currY)
-
+	
 				print ("Distance: %6.0f Heading: %3.1f Altitude: %6.0f X: %d Y: %d" % (distance, heading, altitude, currX, currY))
-
-				del timestamps[:]
-				del x[:]
-				del y[:]
-				del z[:]
-				del headings[:]
+				
+				del dataSet[:]
+				#del timestamps[:]
+				#del x[:]
+				#del y[:]
+				#del z[:]
+				#del headings[:]
 				
 
 			#just to check performance

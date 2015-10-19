@@ -16,6 +16,7 @@ class PositionTracker:
 		
 	def updatePosition(self, dataSet, northAt):
 		headingMoved = sc.findSteps(dataSet)
+		print("headings: ", headingMoved)
 		xTravel, yTravel = sc.calculateStepDistance(self.pace, headingMoved, northAt)
 		self.currentPositionX = self.currentPositionX + xTravel
 		self.currentPositionY = self.currentPositionY + yTravel
