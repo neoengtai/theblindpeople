@@ -13,9 +13,10 @@ def interpretUART(dataSet):
 	power = 0
 	deviceValues = []
 	for data in splitData:
+		if data == '':
+			break
 		deviceID = data[0]
 		for i in range(len(data) - 1,0,-1):
-			#not sure whether int casting will work. need try
 			deviceData = deviceData + (int(data[i]) * 10**power)
 			power = power + 1
 		
@@ -30,11 +31,11 @@ def obstacleAvoid(dataSet):
 	deviceValues = interpretUART(dataSet)
 	for device in deviceValues:
 		if device[0] == 'B':
-			myFG.audioFeedback("beware of steps")
-	return deviceValues #for testing purposes only
-#deviceValues = obstacleAvoid("F123\nL12\nR9\nB1234\nT100")
+			continue
+			#myFG.audioFeedback("beware of steps")
+	#print("DeviceValues", deviceValues) #testing
+
+#deviceValues = obstacleAvoid("F123\nL12\nR9\nB1234\nT100\n")
 #print("deviceValues: ",deviceValues)	
-#obstacleAvoid(deviceValues)
-#def obstacleAvoid(deviceValues, currHeading, northAt, instructionHeading):
 	
 	
