@@ -148,7 +148,7 @@ def calculateStepDistance(averagePacing, headingMoved, northAt):
 	for heading in headingMoved:
 		if heading < 0:
 			heading = heading+2*math.pi
-		headingInMap = (math.degrees(northAt)+heading)%(2*math.pi)
+		headingInMap = (math.radians(northAt)+heading)%(2*math.pi)
 		distX = math.sin(headingInMap) * averagePacing
 		distY = math.cos(headingInMap) * averagePacing
 		xTravel = xTravel + distX
