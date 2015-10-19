@@ -124,7 +124,7 @@ def THREAD_IMU():
 def THREAD_AUDIO(*args):
 	global audioLock
 
-	if audioLock.acquire(timeout=5):
+	if audioLock.acquire(blocking=True, timeout=5):
 		if len(args) == 6:
 			feedbackGiver.giveDirections(args[0],args[1],args[2],args[3],args[4],args[5])
 		else:
@@ -229,7 +229,7 @@ for route in routes:
 				currentHeading = imuData[-1][4]
 				break
 			else:
-				if feedbackCount == 0:
+				if feedbackCount <= 0:
 					#audiofeedback dir and steps
 					thread_audio = threading.Thread(target=THREAD_AUDIO,args=[nextNode, northAt, currentPos[0], currentPos[1], imuData[-1][4], pace])
 					thread_audio.start()
