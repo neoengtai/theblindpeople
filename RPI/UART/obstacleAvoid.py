@@ -6,7 +6,7 @@ import FeedbackGiver as fg
 
 myFG = fg.FeedbackGiver()
 
-def intepretUART(dataSet):
+def interpretUART(dataSet):
 	
 	splitData = dataSet.split('\n')
 	deviceData = 0
@@ -26,12 +26,13 @@ def intepretUART(dataSet):
 	return deviceValues
 
 
-def obstacleAvoid(deviceValues):
+def obstacleAvoid(dataSet):
+	deviceValues = interpretUART(dataSet)
 	for device in deviceValues:
 		if device[0] == 'B':
 			myFG.audioFeedback("beware of steps")
-
-#deviceValues = intepretUART("F123\nL12\nR9\nB1234\nT100")
+	return deviceValues #for testing purposes only
+#deviceValues = obstacleAvoid("F123\nL12\nR9\nB1234\nT100")
 #print("deviceValues: ",deviceValues)	
 #obstacleAvoid(deviceValues)
 #def obstacleAvoid(deviceValues, currHeading, northAt, instructionHeading):
