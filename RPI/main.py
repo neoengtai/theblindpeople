@@ -34,31 +34,31 @@ def getSrcDestNodes():
 		while v is None:
 			building = None
 
-			# feedbackGiver.audioFeedback(clip)
+			feedbackGiver.audioFeedback(clip)
 			print(k + " building: ")
 			buildingID = int(keypad.dummyGetKey()) #TODO: change to actual keypad getKey
 			if buildingID in BUILDING_LIST:
 				building = BUILDING_LIST[buildingID]
 			else:
-				# feedbackGiver.audioFeedback("error")
+				feedbackGiver.audioFeedback("error")
 				print ("Building not in list!")
 				continue
 			
-			# feedbackGiver.audioFeedback("enter level")
+			feedbackGiver.audioFeedback("enter level")
 			print (k + " level: ")
 			level = keypad.dummyGetKey() #TODO: change to actual keypad getKey
 				
 			if mapManager.get_map(building, level) is None:
-				# feedbackGiver.audioFeedback("error")
+				feedbackGiver.audioFeedback("error")
 				print ("Cannot find map!")
 				continue
 			
-			# feedbackGiver.audioFeedback("enter node")
+			feedbackGiver.audioFeedback("enter node")
 			print(k + " nodeID: ")
 			nodeId = keypad.dummyGetKey() #TODO: change to actual keypad getKey
 
 			if mapManager.get_node(building,level,nodeId) is None:
-				# feedbackGiver.audioFeedback("error")
+				feedbackGiver.audioFeedback("error")
 				print ("Invalid node!")
 				continue
 			else:
@@ -116,50 +116,6 @@ def THREAD_IMU():
 				buf.append((data['timestamp'],)+data['accel']+(data['fusionPose'][2],))
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
-
-
-# def THREAD_UART():
-
-# def producer(threadName, delay):
-# 	while True:
-# 		if q.qsize() >= 3:
-# 			print(threadName + " size reached")
-# 		else:
-# 			_list = []
-# 			for i in range(1,11):
-# 				_list.append(i)
-
-# 			print (threadName + "putting")
-# 			q.put(_list)
-# 		time.sleep(delay)
-
-# def consumer(threadName, delay):
-# 	while True:
-# 		_list = q.get()
-# 		print (threadName + ":"  + str(_list))
-# 		time.sleep(delay)
-
-
-
-# Shared data: 1
-# 1 -> Current position (x,y)
-
-# Consumers: 2
-# 1 -> PositionTracker takes accelerometer data and determines current position
-# 2 -> FeedbackGiver takes UART data and provides feeback
-
-# Producers: 2
-# 1 -> Sample accelerometer. Data only used by PositionTracker
-# 2 -> UART from arduino. Data only used by FeedbackGiver
-
-# q = queue.Queue()
-
-# producer1 = threading.Thread(target=producer, args = ("P1", 0.5))
-
-# consumer1 = threading.Thread(target=consumer, args = ("C1", 0.7))
-
-# producer1.start()
-# consumer1.start()
 
 #START OF PROGRAM
 # ---------------------------------Variables-----------------------------------
