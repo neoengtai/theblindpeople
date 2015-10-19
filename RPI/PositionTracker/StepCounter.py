@@ -13,7 +13,7 @@ MIN_WINDOW_SIZE = 25
 # Too low may result in more false positives. Too high results in less counts
 MIN_AMP_X = 0.05
 MIN_AMP_Y = 0.1
-MIN_AMP_Z = 0.15
+MIN_AMP_Z = 0.1
 
 # Filter Params
 FILTER_ORDER = 3
@@ -147,10 +147,10 @@ def calculateStepDistance(averagePacing, headingMoved, northAt):
 	
 	for heading in headingMoved:
 		if heading < 0:
-			heading = heading + 360
-		headingInMap =((northAt + heading) % 360)
-		distX = math.sin(math.radians(headingInMap)) * averagePacing
-		distY = math.cos(math.radians(headingInMap)) * averagePacing
+			heading = (heading+2*math.pi)%(2*math.pi)
+		
+		distX = math.sin(headingInMap) * averagePacing
+		distY = math.cos(headingInMap) * averagePacing
 		xTravel = xTravel + distX
 		yTravel = yTravel + distY
 	

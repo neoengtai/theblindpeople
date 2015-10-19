@@ -32,7 +32,7 @@ class FeedbackGiver():
 		
 		angleRad = math.atan2(diffX, diffY)
 		
-		angleDeg = ((angleRad/math.pi) * 180)
+		angleDeg = math.degrees(angleRad)
 		
 		angleDegPositive = ((angleDeg + 360) %360)
 		
