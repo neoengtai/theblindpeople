@@ -46,7 +46,7 @@ class FeedbackGiver():
 		# print ("To node: ", tempNode["nodeId"])
 		angle = self.getAngle(currX, currY, node['x'], node['y'], northAt)
 
-		difference = angle - ((heading + 360) %360)
+		difference = angle - ((math.degrees(heading) + 360) %360)
 
 		if difference > 180:
 			difference -= 360 #left
