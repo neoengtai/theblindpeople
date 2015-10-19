@@ -8,7 +8,6 @@ class FeedbackGiver():
 	
 	def audioFeedback(self,feedbackString):
 		#feedbackString = feedbackString.lower()
-
 		#split the string and play the sound
 		for sound in feedbackString.split(' '):
 			if sound.isdigit() == True:
@@ -41,32 +40,23 @@ class FeedbackGiver():
 		
 		return angleResult
 	
-	def getDirection (self, path, northAt, currX, currY, heading):	
-		shortestDistance = None;
-		for node in path:
-			separation = math.hypot((node['x']- currX),(node['y'] - currY))
-			if (shortestDistance is None):
-				shortestDistance = separation
-				tempNode = node
-			else:
-				if (separation <= shortestDistance):
-					shortestDistance = separation
-					tempNode = node
-		
-		#print ("To node: ", tempNode["nodeId"])
-		angle = self.getAngle(currX, currY, tempNode['x'], tempNode['y'], northAt)
+	def giveDirections (self, node, northAt, currX, currY, heading, pace): 
+		separation = math.hypot((node['x']- currX),(node['y'] - currY))
 
-		#difference = angle - ((heading + 360) %360)
-		difference = angle - heading
+		# print ("To node: ", tempNode["nodeId"])
+		angle = self.getAngle(currX, currY, node['x'], node['y'], northAt)
+
+		difference = angle - ((heading + 360) %360)
+
 		if difference > 180:
-			difference -= 360 	#left
+			difference -= 360 #left
 		elif difference < -180:
-			difference += 360	#right
-		
-		feedbackString = self.dataToString(0,difference)
-		#feedbackString = feedbackString + " " + str(int(shortestDistance)) + " meters"
-		self.audioFeedback(feedbackString)
-		return shortestDistance
+			difference += 360 #right
+
+		audioDir = self.dataToString(0,int(difference))
+		audioDist = self.dataToString(1,int(separation/pace)) + " steps"
+
+		self.audioFeedback(audioDir+' '+audioDist)
 		
 	# Convert data to string format for audio feedback
 	# function 0 : direction
@@ -83,3 +73,5 @@ class FeedbackGiver():
 				return "turn slight left"
 			elif data in range(-180,-65):
 				return "turn left"
+		elif function == 1:
+			return ' '.join(list(str(data)))

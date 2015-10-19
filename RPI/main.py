@@ -1,6 +1,5 @@
 
 # sys.path.append('.')
-# import math
 
 import os.path
 import sys
@@ -13,10 +12,15 @@ from PositionTracker import PositionTracker as PT
 import queue
 import threading
 import time
+import math
 
 SETTINGS_FILE = "Configuration/RTIMULib"
 CALIBRATION_FILE = "Configuration/profile.ini"
 IMU_SAMPLING_PERIOD = 0.02 	# In seconds
+# 0: Z point front, X point down
+# 1: Z point left, X point front
+# 2: Z point up, X point front
+IMU_MOUNT_DIRECTION = 2
 
 BUILDING_LIST = {	1: "COM1",
 					2: "COM2",
@@ -105,17 +109,27 @@ def THREAD_IMU():
 		
 		while True:
 			if time.time() - s_time >= 5:
-				pt = time.time()
+				# pt = time.time()
 				imu_Q.put(buf)
-				print ("Put time: ", (time.time() - pt))
-				print ("IMURate: ", len(buf)/(pt - s_time))
+				# print ("Put time: ", (time.time() - pt))
+				# print ("IMURate: ", len(buf)/(pt - s_time))
 				break
 
 			if imu.IMURead():
 				data = imu.getIMUData()
-				buf.append((data['timestamp'],)+data['accel']+(data['fusionPose'][2],))
+				buf.append((data['timestamp'],)+data['accel']+(data['fusionPose'][IMU_MOUNT_DIRECTION],))
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
+
+def THREAD_AUDIO(*args):
+	global audioLock
+
+	if audioLock.acquire(timeout=5):
+		if len(args) == 6:
+			feedbackGiver.giveDirections(args[0],args[1],args[2],args[3],args[4],args[5])
+		else:
+			feedbackGiver.audioFeedback(args[0])
+		audioLock.release()
 
 #START OF PROGRAM
 # ---------------------------------Variables-----------------------------------
@@ -127,7 +141,9 @@ positionTracker = None
 pace = None
 source, destination = None, None
 imu_Q = None
-thread_imu_pause_flag = False
+currentHeading = None
+feedbackCount = 2
+audioLock = threading.Lock()
 
 # -------------------------------Init Section----------------------------------
 pace = loadUserProfile()
@@ -172,6 +188,12 @@ routes = RF.findRoute(mapManager, source[2], source[0], source[1],
 					destination[2], destination[0], destination[1])
 print (routes)
 
+# Initialize the first heading
+while True:
+	if imu.IMURead():
+		currentHeading = imu.getFusionData()[IMU_MOUNT_DIRECTION]
+		break
+
 t_imu = threading.Thread(target=THREAD_IMU)
 # t_uart = threading.Thread(target=THREAD_UART)
 
@@ -189,11 +211,28 @@ for route in routes:
 		currentNode = mapManager.get_node(building,level,path[i])
 		nextNode = mapManager.get_node(building,level,path[i+1])
 		positionTracker.setCurrentPosition(currentNode['x'],currentNode['y'])
+		thread_audio = threading.Thread(target=THREAD_AUDIO,args=[nextNode, northAt, currentNode['x'], currentNode['y'], currentHeading, pace])
+		thread_audio.start()
 
 		while True:
 			# This call blocks until the IMU thread puts data into the queue
 			imuData = imu_Q.get()
 			positionTracker.updatePosition(imuData,northAt)
 			imu_Q.task_done()
+			feedbackCount -= 1
 
-			print ("Current pos: ", positionTracker.getCurrentPosition())
+			currentPos = positionTracker.getCurrentPosition()
+			if math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 2000:
+				# audio feedback node reached
+				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node reached"])
+				thread_audio.start()
+				currentHeading = imuData[-1][4]
+				break
+			else:
+				if feedbackCount == 0:
+					#audiofeedback dir and steps
+					thread_audio = threading.Thread(target=THREAD_AUDIO,args=[nextNode, northAt, currentPos[0], currentPos[1], imuData[-1][4], pace])
+					thread_audio.start()
+					feedbackCount = 2
+
+feedbackGiver.audioFeedback("reached")
