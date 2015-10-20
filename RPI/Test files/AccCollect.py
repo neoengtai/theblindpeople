@@ -9,7 +9,7 @@ import time
 import math
 import json
 
-SETTINGS_FILE = "RTIMULib"
+SETTINGS_FILE = "Configuration/RTIMULib"
 
 print("Using settings file " + SETTINGS_FILE + ".ini")
 if not os.path.exists(SETTINGS_FILE + ".ini"):

@@ -13,7 +13,7 @@ MIN_WINDOW_SIZE = 25
 # Too low may result in more false positives. Too high results in less counts
 MIN_AMP_X = 0.05
 MIN_AMP_Y = 0.1
-MIN_AMP_Z = 0.1
+MIN_AMP_Z = 0.15
 
 # Filter Params
 FILTER_ORDER = 3

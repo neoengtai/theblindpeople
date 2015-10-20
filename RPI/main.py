@@ -40,7 +40,7 @@ def getSrcDestNodes():
 
 			feedbackGiver.audioFeedback(clip)
 			print(k + " building: ")
-			buildingID = int(keypad.dummyGetKey()) #TODO: change to actual keypad getKey
+			buildingID = int(keypad.getUserInput()) #TODO: change to actual keypad getKey
 			if buildingID in BUILDING_LIST:
 				building = BUILDING_LIST[buildingID]
 			else:
@@ -50,7 +50,7 @@ def getSrcDestNodes():
 			
 			feedbackGiver.audioFeedback("enter level")
 			print (k + " level: ")
-			level = keypad.dummyGetKey() #TODO: change to actual keypad getKey
+			level = keypad.getUserInput() #TODO: change to actual keypad getKey
 				
 			if mapManager.get_map(building, level) is None:
 				feedbackGiver.audioFeedback("error")
@@ -59,7 +59,7 @@ def getSrcDestNodes():
 			
 			feedbackGiver.audioFeedback("enter node")
 			print(k + " nodeID: ")
-			nodeId = keypad.dummyGetKey() #TODO: change to actual keypad getKey
+			nodeId = keypad.getUserInput() #TODO: change to actual keypad getKey
 
 			if mapManager.get_node(building,level,nodeId) is None:
 				feedbackGiver.audioFeedback("error")
@@ -117,7 +117,8 @@ def THREAD_IMU():
 
 			if imu.IMURead():
 				data = imu.getIMUData()
-				buf.append((data['timestamp'],)+data['accel']+(data['fusionPose'][IMU_MOUNT_DIRECTION],))
+				acc = imu.getAccelResiduals()
+				buf.append((data['timestamp'],)+acc+(data['fusionPose'][IMU_MOUNT_DIRECTION],))
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
 
@@ -236,3 +237,4 @@ for route in routes:
 					feedbackCount = 2
 
 feedbackGiver.audioFeedback("reached")
+print ("End")
