@@ -143,7 +143,6 @@ pace = None
 source, destination = None, None
 imu_Q = None
 currentHeading = None
-feedbackCount = 2
 audioLock = threading.Lock()
 
 # -------------------------------Init Section----------------------------------
@@ -220,21 +219,18 @@ for route in routes:
 			imuData = imu_Q.get()
 			positionTracker.updatePosition(imuData,northAt)
 			imu_Q.task_done()
-			feedbackCount -= 1
 
 			currentPos = positionTracker.getCurrentPosition()
-			if math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 100:
+			if math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 150:
 				# audio feedback node reached
 				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node reached"])
 				thread_audio.start()
 				currentHeading = imuData[-1][4]
 				break
 			else:
-				if feedbackCount <= 0:
-					#audiofeedback dir and steps
-					thread_audio = threading.Thread(target=THREAD_AUDIO,args=[nextNode, northAt, currentPos[0], currentPos[1], imuData[-1][4], pace])
-					thread_audio.start()
-					feedbackCount = 2
+				#audiofeedback dir and steps
+				thread_audio = threading.Thread(target=THREAD_AUDIO,args=[nextNode, northAt, currentPos[0], currentPos[1], imuData[-1][4], pace])
+				thread_audio.start()
 
 feedbackGiver.audioFeedback("reached")
 print ("End")
