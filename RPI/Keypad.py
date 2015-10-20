@@ -59,10 +59,10 @@ class Keypad:
                 input += str(digit)
                 time.sleep(1)
 
-    def dummyGetKey(self):
-        return input()
+#     def dummyGetKey(self):
+#         return input()
 
-kp = Keypad()
-while True:
-    print (kp.getKey())
-    time.sleep(0.05)
+# kp = Keypad()
+# while True:
+#     print (kp.getKey())
+#     time.sleep(0.05)
