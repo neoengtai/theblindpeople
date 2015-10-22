@@ -1,6 +1,7 @@
 import urllib.request, urllib.parse, json, math
 
 class MapManager:
+	CACHE_DIR = "MapCache/"
 	def __init__(self, mode):
 		# mode -> 0: Offline, 1: Online
 		self.mode = mode
@@ -59,7 +60,7 @@ class MapManager:
 			elif self.mode == "Offline":
 				filename = "B"+str(building)+"L"+str(level)+".json"
 				try:
-					f = open(filename, "r")
+					f = open(self.CACHE_DIR+filename, "r")
 					rawMap = json.load(f)
 					f.close()
 				except FileNotFoundError:
