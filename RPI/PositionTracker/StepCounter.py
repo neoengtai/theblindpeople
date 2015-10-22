@@ -12,8 +12,8 @@ MIN_WINDOW_SIZE = 25
 
 # Too low may result in more false positives. Too high results in less counts
 MIN_AMP_X = 0.05
-MIN_AMP_Y = 0.1
-MIN_AMP_Z = 0.10
+MIN_AMP_Y = 0.04
+MIN_AMP_Z = 0.08
 
 # Filter Params
 FILTER_ORDER = 3
@@ -125,7 +125,7 @@ def findSteps(data):
 				yd = not (ySlope == slope) 
 				zd = decideZ(listZ, MIN_AMP_Z)
 
-				#print ("Y ", yd, " Z ", zd)
+				print ("Y ", yd, " Z ", zd)
 
 				# If step found, clear windows, restart from top
 				# if not (ySlope == slope) or decideZ(fz, MIN_AMP_Z):
