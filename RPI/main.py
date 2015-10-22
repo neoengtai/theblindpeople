@@ -166,16 +166,16 @@ def feedbackResolver(function, data):
 			return "continue straight"
 		elif data in range(20,65):
 			return "turn slight right"
-		elif data in range(65,100):
+		elif data in range(65,110):
 			return "turn right"
-		elif data in range(100,181):
-			return "U turn right"
+		elif data in range(110,181):
+			return "U turn"
 		elif data in range(-65,-20):
 			return "turn slight left"
-		elif data in range(-100,-65):
+		elif data in range(-110,-65):
 			return "turn left"
-		elif data in range(-181, -100):
-			return "U turn left"
+		elif data in range(-180, -110):
+			return "U turn"
 	elif function == 1:
 		return ' '.join(list(str(data)))
 
