@@ -320,10 +320,13 @@ for route in routes:
 			currentPos = positionTracker.getCurrentPosition()
 			dist, angle = getDirections(nextNode, northAt, currentPos[0], currentPos[1], currentHeading)
 			if(isOvershot(currentNode, nextNode, currentPos[0], currentPos[1])):
-				followingNode = mapManager.get_node(building,level,path[i+2]) #NOTE IF i+2 out of bounds then last ode liao. must cater
-				currentAngle = resolveRealAngle(currentNode['x'],currentNode['y'],nextNode['x'],nextNode['y'],northAt)
-				nextAngle = resolveRealAngle(nextNode['x'], nextNode['y'], followingNode['x'], followingNode['y'],northAt)
-				continueWalking = ((nextAngle <= (currentAngle+15)) or (nextAngle >=(currentAngle-15)))
+				try:
+					followingNode = mapManager.get_node(building,level,path[i+2]) #NOTE IF i+2 out of bounds then last ode liao. must cater
+					currentAngle = resolveRealAngle(currentNode['x'],currentNode['y'],nextNode['x'],nextNode['y'],northAt)
+					nextAngle = resolveRealAngle(nextNode['x'], nextNode['y'], followingNode['x'], followingNode['y'],northAt)
+					continueWalking = ((nextAngle <= (currentAngle+15)) or (nextAngle >=(currentAngle-15)))
+				except IndexError:
+					pass
 			else:
 				continueWalking = False
 			if (math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 150) or continueWalking:
