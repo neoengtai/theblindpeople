@@ -126,13 +126,77 @@ def THREAD_AUDIO(*args):
 	global audioLock
 
 	if audioLock.acquire(blocking=True, timeout=5):
-		if len(args) == 6:
-			feedbackGiver.giveDirections(args[0],args[1],args[2],args[3],args[4],args[5])
-		else:
-			feedbackGiver.audioFeedback(args[0])
+		feedbackGiver.audioFeedback(args[0])
 		audioLock.release()
 
-#START OF PROGRAM
+#Returns direction in degree
+def resolveRealAngle(currentX, currentY, nodeX, nodeY, northAt):
+
+	#calculate distance
+	diffX = nodeX - currentX
+	diffY = nodeY - currentY
+		
+	angleRad = math.atan2(diffX, diffY)
+	angleDeg = math.degrees(angleRad)
+		
+	angleDegPositive = ((angleDeg + 360) %360)
+		
+	angleResult = (angleDegPositive - northAt + 360) % 360
+		
+	return angleResult
+	
+def getDirections (node, northAt, currX, currY, heading, pace): 
+	separation = math.hypot((node['x']- currX),(node['y'] - currY))
+
+	# print ("To node: ", tempNode["nodeId"])
+	angle = resolveRealAngle(currX, currY, node['x'], node['y'], northAt)
+
+	difference = angle - ((math.degrees(heading) + 360) %360)
+
+	if difference > 180:
+		difference -= 360 #left
+	elif difference < -180:
+		difference += 360 #right		
+		
+	return seperation, difference
+	#Return the distance to node and the angle to change
+		
+	#audioDir = self.dataToString(0,int(difference))
+	#audioDist = self.dataToString(1,int(separation/pace)) + " steps"
+	#self.audioFeedback(audioDir+' '+audioDist)
+		
+# Convert data to string format for audio feedback
+# function 0 : direction
+#def dataToString(function, data):
+def feedbackResolver(function, data):
+	result = [] 
+	if function == 0:
+		if data in range(-20,20):
+			return "continue straight"
+		elif data in range(20,65):
+			return "turn slight right"
+		elif data in range(65,100):
+			return "turn right"
+		elif data in range(100,181):
+			return "U turn right"
+		elif data in range(-65,-20):
+			return "turn slight left"
+		elif data in range(-100,-65):
+			return "turn left"
+		elif data in range(-181, -100):
+			return "U turn left"
+	elif function == 1:
+		return ' '.join(list(str(data)))
+
+def generateFeedback(dist, angle, pace):
+	angleString = feedbackResolver(0, angle)
+	angleDist = feedbackResolver(1,int(dist/pace)) + " steps"
+	
+	feedbackString = angleString+' '+angleDist
+	
+	return feedbackString
+	
+		#START OF PROGRAM
 # ---------------------------------Variables-----------------------------------
 imu = None
 feedbackGiver = None
@@ -221,7 +285,13 @@ for route in routes:
 			imu_Q.task_done()
 
 			currentPos = positionTracker.getCurrentPosition()
-			if math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 150:
+			dist, angle = getDirections(currentPos[0], currentPos[1], nextNode['x'], nextNode['y'])
+			if((angle > 100) or (angle < -100)):
+				followingNode = mapManager.get_node(building,level,path[i+2])
+				currentAngle = resolveRealAngle(currentNode['x'],currentNode['y'],nextNode['x'],nextNode['y'],northAt)
+				nextAngle = resolveRealAngle(nextNode['x'], nextNode['y'], followingNode['x'], followingNode['y'],northAt)
+				continueWalking = ((nextAngle <= (currentAngle+15)) or (nextAngle >=(currentAngle-15)))
+			if (math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 150) or continueWalking:
 				# audio feedback node reached
 				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node reached"])
 				thread_audio.start()
@@ -229,7 +299,8 @@ for route in routes:
 				break
 			else:
 				#audiofeedback dir and steps
-				thread_audio = threading.Thread(target=THREAD_AUDIO,args=[nextNode, northAt, currentPos[0], currentPos[1], imuData[-1][4], pace])
+				feedbackString = generateFeedback(dist, angle, pace)
+				thread_audio = threading.Thread(target=THREAD_AUDIO,args=[feedbackString])
 				thread_audio.start()
 
 feedbackGiver.audioFeedback("reached")
