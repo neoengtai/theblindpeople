@@ -36,7 +36,8 @@ def getSrcDestNodes():
 
 			feedbackGiver.audioFeedback(clip)
 			print(k + " building: ")
-			buildingID = int(keypad.getUserInput()) #TODO: change to actual keypad getKey
+			# buildingID = int(keypad.getUserInput()) #TODO: change to actual keypad getKey
+			buildingID = int(input()) #TODO: change to actual keypad getKey
 			if buildingID in BUILDING_LIST:
 				building = BUILDING_LIST[buildingID]
 			else:
@@ -46,7 +47,8 @@ def getSrcDestNodes():
 			
 			feedbackGiver.audioFeedback("enter level")
 			print (k + " level: ")
-			level = keypad.getUserInput() #TODO: change to actual keypad getKey
+			# level = keypad.getUserInput() #TODO: change to actual keypad getKey
+			level = input() #TODO: change to actual keypad getKey
 				
 			if mapManager.get_map(building, level) is None:
 				feedbackGiver.audioFeedback("error")
@@ -55,7 +57,8 @@ def getSrcDestNodes():
 			
 			feedbackGiver.audioFeedback("enter node")
 			print(k + " nodeID: ")
-			nodeId = keypad.getUserInput() #TODO: change to actual keypad getKey
+			# nodeId = keypad.getUserInput() #TODO: change to actual keypad getKey
+			nodeId = input() #TODO: change to actual keypad getKey
 
 			if mapManager.get_node(building,level,nodeId) is None:
 				feedbackGiver.audioFeedback("error")
@@ -114,7 +117,7 @@ def THREAD_IMU():
 			if imu.IMURead():
 				data = imu.getIMUData()
 				# Z axis facing front, X axis facing left
-				heading = math.atan2(data[0],-data[2])
+				heading = math.atan2(data['compass'][0],-data['compass'][2])
 				acc = imu.getAccelResiduals()
 				buf.append((data['timestamp'],)+acc+(heading,))
 
@@ -143,7 +146,7 @@ def resolveRealAngle(currentX, currentY, nodeX, nodeY, northAt):
 		
 	return angleResult
 	
-def getDirections (node, northAt, currX, currY, heading, pace): 
+def getDirections (node, northAt, currX, currY, heading): 
 	separation = math.hypot((node['x']- currX),(node['y'] - currY))
 
 	# print ("To node: ", tempNode["nodeId"])
@@ -156,7 +159,7 @@ def getDirections (node, northAt, currX, currY, heading, pace):
 	elif difference < -180:
 		difference += 360 #right		
 		
-	return seperation, difference
+	return separation, difference
 	#Return the distance to node and the angle to change
 		
 	#audioDir = self.dataToString(0,int(difference))
@@ -187,13 +190,40 @@ def feedbackResolver(function, data):
 		return ' '.join(list(str(data)))
 
 def generateFeedback(dist, angle, pace):
-	angleString = feedbackResolver(0, angle)
+	angleString = feedbackResolver(0, int(angle))
 	angleDist = feedbackResolver(1,int(dist/pace)) + " steps"
 	
 	feedbackString = angleString+' '+angleDist
 	
 	return feedbackString
+
+def isOvershot(currentNode, nextNode, currX, currY):
 	
+	diffX = nextNode['x'] - currentNode['x'] 
+	diffY = nextNode['y'] - currentNode['y']
+	overshotY = False
+	overshotX = False
+	
+	if(diffY > 0):
+		if(currY > nextNode['y']):
+			overshotY = True
+	elif(diffY < 0):
+		if(currY < nextNode['y']):
+			overshotY = True
+	else:
+		overshotY = True	
+
+	if(diffX > 0):
+		if(currX > nextNode['x']):
+			overshotX = True
+	elif(diffX < 0):
+		if(currX < nextNode['x']):
+			overshotX = True
+	else:
+		overshotX = True
+	
+	return (overshotX and overshotY)
+
 		#START OF PROGRAM
 # ---------------------------------Variables-----------------------------------
 imu = None
@@ -206,6 +236,7 @@ source, destination = None, None
 imu_Q = None
 currentHeading = None
 audioLock = threading.Lock()
+continueWalking = False
 
 # -------------------------------Init Section----------------------------------
 pace = loadUserProfile()
@@ -253,7 +284,9 @@ print (routes)
 # Initialize the first heading
 while True:
 	if imu.IMURead():
-		currentHeading = imu.getFusionData()[IMU_MOUNT_DIRECTION]
+		compass = imu.getCompass()
+		# Z axis facing front, X axis facing left
+		currentHeading = math.atan2(compass[0],-compass[2])
 		break
 
 t_imu = threading.Thread(target=THREAD_IMU)
@@ -273,7 +306,9 @@ for route in routes:
 		currentNode = mapManager.get_node(building,level,path[i])
 		nextNode = mapManager.get_node(building,level,path[i+1])
 		positionTracker.setCurrentPosition(currentNode['x'],currentNode['y'])
-		thread_audio = threading.Thread(target=THREAD_AUDIO,args=[nextNode, northAt, currentNode['x'], currentNode['y'], currentHeading, pace])
+		dist, angle = getDirections(nextNode, northAt, currentNode['x'], currentNode['y'], currentHeading)
+		feedbackString = generateFeedback(dist, angle, pace)
+		thread_audio = threading.Thread(target=THREAD_AUDIO,args=[feedbackString])
 		thread_audio.start()
 
 		while True:
@@ -283,12 +318,14 @@ for route in routes:
 			imu_Q.task_done()
 
 			currentPos = positionTracker.getCurrentPosition()
-			dist, angle = getDirections(currentPos[0], currentPos[1], nextNode['x'], nextNode['y'])
-			if((angle > 100) or (angle < -100)):
-				followingNode = mapManager.get_node(building,level,path[i+2])
+			dist, angle = getDirections(nextNode, northAt, currentPos[0], currentPos[1], currentHeading)
+			if(isOvershot(currentNode, nextNode, currentPos[0], currentPos[1])):
+				followingNode = mapManager.get_node(building,level,path[i+2]) #NOTE IF i+2 out of bounds then last ode liao. must cater
 				currentAngle = resolveRealAngle(currentNode['x'],currentNode['y'],nextNode['x'],nextNode['y'],northAt)
 				nextAngle = resolveRealAngle(nextNode['x'], nextNode['y'], followingNode['x'], followingNode['y'],northAt)
 				continueWalking = ((nextAngle <= (currentAngle+15)) or (nextAngle >=(currentAngle-15)))
+			else:
+				continueWalking = False
 			if (math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 150) or continueWalking:
 				# audio feedback node reached
 				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node reached"])
