@@ -13,6 +13,7 @@ import queue
 import threading
 import time
 import math
+import urllib.request
 from socket import timeout
 
 SETTINGS_FILE = "Configuration/RTIMULib"
@@ -29,12 +30,10 @@ def getSrcDestNodes():
 			clip = "enter ending building"
 
 		while v is None:
-			building = None
-
 			feedbackGiver.audioFeedback(clip)
 			print(k + " building: ")
-			# buildingID = int(keypad.getUserInput()) #TODO: change to actual keypad getKey
-			buildingID = int(input()) #TODO: change to actual keypad getKey
+			# buildingID = keypad.getUserInput() #TODO: change to actual keypad getKey
+			building = input() #TODO: change to actual keypad getKey
 			
 			feedbackGiver.audioFeedback("enter level")
 			print (k + " level: ")
@@ -254,7 +253,7 @@ if wifi:
 	mapManager = MM.MapManager("Online")
 else:
 	mapManager = MM.MapManager("Offline")
-	
+
 # IMU init sequence. Can't seem to put it in a function :(
 if not os.path.exists(SETTINGS_FILE + ".ini"):
 	print("Settings file not found!")

@@ -63,7 +63,7 @@ class MapManager:
 					f = open(self.CACHE_DIR+filename, "r")
 					rawMap = json.load(f)
 					f.close()
-				except FileNotFoundError:
+				except IOError:
 					pass
 
 			if rawMap is not None:
