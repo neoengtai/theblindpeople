@@ -1,20 +1,20 @@
 import urllib.request, urllib.parse, json, math
 
 class MapManager:
-	def __init__(self):
+	def __init__(self, mode):
+		# mode -> 0: Offline, 1: Online
+		self.mode = mode
 		self.maps = {}
 
 	def parse_map (self, raw_map):
-		decoded = json.loads(raw_map.read().decode("utf-8"))
-		
 		#Change all strings to integer, split linkTo into list
-		nodes = decoded['map']
+		nodes = raw_map['map']
 		for node in nodes:
 			node['x'] = int(node['x'])
 			node['y'] = int(node['y'])
 			node['linkTo'] = [id.strip() for id in node['linkTo'].split(',')]
 		
-		return decoded
+		return raw_map
 
 	def generate_adj_list(self, building, level):
 		adj_list = {}
@@ -49,16 +49,29 @@ class MapManager:
 			#If a map already exist, just retrieve
 			ret = self.maps[building][level]
 		else:
-			#Download the map
-			params = urllib.parse.urlencode({"Building" : building, "Level" : level})
-			response = urllib.request.urlopen("http://showmyway.comp.nus.edu.sg/getMapInfo.php?%s" % params)
-			map_ = self.parse_map(response)
-			if map_['info'] is not None:
-				#Insert map into the collection
-				if building in self.maps:
-					self.maps[building].update({level : map_})
-				else:
-					self.maps.update({building : {level : map_}})
-				ret = map_
+			rawMap = None
 
+			if self.mode == "Online":
+				#Download the map
+				params = urllib.parse.urlencode({"Building" : building, "Level" : level})
+				response = urllib.request.urlopen("http://showmyway.comp.nus.edu.sg/getMapInfo.php?%s" % params)
+				rawMap = json.loads(response.read().decode("utf-8"))
+			elif self.mode == "Offline":
+				filename = "B"+str(building)+"L"+str(level)+".json"
+				try:
+					f = open(filename, "r")
+					rawMap = json.load(f)
+					f.close()
+				except FileNotFoundError:
+					pass
+
+			if rawMap is not None:
+				parsed = self.parse_map(rawMap)
+				if parsed['info'] is not None:
+					#Insert map into the collection
+					if building in self.maps:
+						self.maps[building].update({level : parsed})
+					else:
+						self.maps.update({building : {level : parsed}})
+					ret = parsed
 		return ret
