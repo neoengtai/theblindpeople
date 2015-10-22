@@ -17,10 +17,6 @@ import math
 SETTINGS_FILE = "Configuration/RTIMULib"
 CALIBRATION_FILE = "Configuration/profile.ini"
 IMU_SAMPLING_PERIOD = 0.02 	# In seconds
-# 0: Z point front, X point down
-# 1: Z point left, X point front
-# 2: Z point up, X point front
-IMU_MOUNT_DIRECTION = 2
 
 BUILDING_LIST = {	1: "COM1",
 					2: "COM2",
@@ -117,8 +113,10 @@ def THREAD_IMU():
 
 			if imu.IMURead():
 				data = imu.getIMUData()
+				# Z axis facing front, X axis facing left
+				heading = math.atan2(data[0],-data[2])
 				acc = imu.getAccelResiduals()
-				buf.append((data['timestamp'],)+acc+(data['fusionPose'][IMU_MOUNT_DIRECTION],))
+				buf.append((data['timestamp'],)+acc+(heading,))
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
 
@@ -234,9 +232,9 @@ if (not imu.IMUInit()):
 
 # Set params for the imu (r,p,y) values calculation
 imu.setSlerpPower(0.02)
-imu.setGyroEnable(True)
-imu.setAccelEnable(True)
-imu.setCompassEnable(True)
+imu.setGyroEnable(False)
+imu.setAccelEnable(False)
+imu.setCompassEnable(False)
 
 if (not pressure.pressureInit()):
 	print("Pressure sensor Init Failed")
