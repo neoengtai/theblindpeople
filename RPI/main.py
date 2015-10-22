@@ -13,14 +13,11 @@ import queue
 import threading
 import time
 import math
+from socket import timeout
 
 SETTINGS_FILE = "Configuration/RTIMULib"
 CALIBRATION_FILE = "Configuration/profile.ini"
 IMU_SAMPLING_PERIOD = 0.02 	# In seconds
-
-BUILDING_LIST = {	1: "COM1",
-					2: "COM2",
-				}
 
 def getSrcDestNodes():
 	places = {"Source": None, "Destination": None}
@@ -38,12 +35,6 @@ def getSrcDestNodes():
 			print(k + " building: ")
 			# buildingID = int(keypad.getUserInput()) #TODO: change to actual keypad getKey
 			buildingID = int(input()) #TODO: change to actual keypad getKey
-			if buildingID in BUILDING_LIST:
-				building = BUILDING_LIST[buildingID]
-			else:
-				feedbackGiver.audioFeedback("error")
-				print ("Building not in list!")
-				continue
 			
 			feedbackGiver.audioFeedback("enter level")
 			print (k + " level: ")
@@ -224,7 +215,20 @@ def isOvershot(currentNode, nextNode, currX, currY):
 	
 	return (overshotX and overshotY)
 
-		#START OF PROGRAM
+def testConnection():
+	connectionFlag = False
+	try:
+		urllib.request.urlopen("http://www.google.com", timeout = 3)
+		connectFlag = True
+		print ("Got connection!")
+	except urllib.error.URLError as e:
+		print ("No Connection")
+	except timeout:
+		print("timeout!")
+	
+	return connectionFlag
+
+#START OF PROGRAM
 # ---------------------------------Variables-----------------------------------
 imu = None
 feedbackGiver = None
@@ -244,10 +248,13 @@ imu_Q = queue.Queue()
 keypad = KP.Keypad()
 #init Arduino
 feedbackGiver = FG.FeedbackGiver()
-#init WiFi (just to test for connection)
+wifi = testConnection()
 positionTracker = PT.PositionTracker(0,0,pace)
-mapManager = MM.MapManager()
-
+if wifi:
+	mapManager = MM.MapManager("Online")
+else:
+	mapManager = MM.MapManager("Offline")
+	
 # IMU init sequence. Can't seem to put it in a function :(
 if not os.path.exists(SETTINGS_FILE + ".ini"):
 	print("Settings file not found!")
