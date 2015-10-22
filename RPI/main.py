@@ -318,6 +318,10 @@ for route in routes:
 			imu_Q.task_done()
 
 			currentPos = positionTracker.getCurrentPosition()
+			currentHeading = imuData[-1][4]
+			print ("X: %f Y: %f" % (currentPos[0],currentPos[1]))
+			print ("Current heading: ", currentHeading)
+
 			dist, angle = getDirections(nextNode, northAt, currentPos[0], currentPos[1], currentHeading)
 			if(isOvershot(currentNode, nextNode, currentPos[0], currentPos[1])):
 				try:
@@ -333,7 +337,6 @@ for route in routes:
 				# audio feedback node reached
 				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node reached"])
 				thread_audio.start()
-				currentHeading = imuData[-1][4]
 				break
 			else:
 				#audiofeedback dir and steps

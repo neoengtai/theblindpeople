@@ -5,15 +5,15 @@ import math
 
 # Number of data points in 1 step(pace/sampling_rate)
 # Use the longest time(slowest pace) taken for 1 step here
-MAX_WINDOW_SIZE = 60
+MAX_WINDOW_SIZE = 100
 # Use the shortest time(fastest pace) taken for 1 step here
 # For removing any attemps to find steps if the current window has lesser data points than this
-MIN_WINDOW_SIZE = 25
+MIN_WINDOW_SIZE = 60
 
 # Too low may result in more false positives. Too high results in less counts
-MIN_AMP_X = 0.05
-MIN_AMP_Y = 0.04
-MIN_AMP_Z = 0.08
+MIN_AMP_X = 0.08
+MIN_AMP_Y = 0.07
+MIN_AMP_Z = 0.07
 
 # Filter Params
 FILTER_ORDER = 3
@@ -108,9 +108,9 @@ def findSteps(data):
 		rv = []
 		for reading in data:
 			# Append until min window reached
-			xWindow.append(reading[1])
-			yWindow.append(reading[2])
-			zWindow.append(reading[3])
+			xWindow.append(reading[3])
+			yWindow.append(reading[1])
+			zWindow.append(reading[2])
 			if len(xWindow) < MIN_WINDOW_SIZE:
 				continue
 
