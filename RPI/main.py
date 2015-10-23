@@ -109,7 +109,7 @@ def THREAD_IMU():
 				# Z axis facing front, X axis facing left
 				heading = math.atan2(data['compass'][0],-data['compass'][2])
 				acc = imu.getAccelResiduals()
-				buf.append((data['timestamp'],)+acc+(heading,))
+				buf.append((data['timestamp'],acc[2],acc[0],acc[1],heading))
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
 
@@ -141,6 +141,8 @@ def getDirections (node, northAt, currX, currY, heading):
 
 	# print ("To node: ", tempNode["nodeId"])
 	angle = resolveRealAngle(currX, currY, node['x'], node['y'], northAt)
+	# TEST
+	print ("To face: ", angle)
 
 	difference = angle - ((math.degrees(heading) + 360) %360)
 
@@ -325,8 +327,8 @@ for route in routes:
 
 			currentPos = positionTracker.getCurrentPosition()
 			currentHeading = imuData[-1][4]
-			print ("X: %f Y: %f" % (currentPos[0],currentPos[1]))
-			print ("Current heading: ", currentHeading)
+			print ("X: %.0f Y: %.0f" % (currentPos[0],currentPos[1]))
+			print ("Current heading: ", math.degrees(currentHeading))
 
 			dist, angle = getDirections(nextNode, northAt, currentPos[0], currentPos[1], currentHeading)
 			if(isOvershot(currentNode, nextNode, currentPos[0], currentPos[1])):
@@ -339,9 +341,10 @@ for route in routes:
 					pass
 			else:
 				continueWalking = False
-			if (math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 150) or continueWalking:
+			if (math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 100) or continueWalking:
 				# audio feedback node reached
 				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node reached"])
+				print ("Node reached: ", nextNode['nodeId']) # TODO change to audio feedback
 				thread_audio.start()
 				break
 			else:
@@ -350,5 +353,7 @@ for route in routes:
 				thread_audio = threading.Thread(target=THREAD_AUDIO,args=[feedbackString])
 				thread_audio.start()
 
-feedbackGiver.audioFeedback("reached")
-print ("End")
+if audioLock.acquire(blocking=True, timeout=5):
+	feedbackGiver.audioFeedback("reached")
+	print ("End")
+	audioLock.release()

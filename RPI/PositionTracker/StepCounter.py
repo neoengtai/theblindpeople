@@ -11,9 +11,9 @@ MAX_WINDOW_SIZE = 100
 MIN_WINDOW_SIZE = 60
 
 # Too low may result in more false positives. Too high results in less counts
-MIN_AMP_X = 0.08
+MIN_AMP_X = 0.09
 MIN_AMP_Y = 0.07
-MIN_AMP_Z = 0.07
+MIN_AMP_Z = 0.06
 
 # Filter Params
 FILTER_ORDER = 3
@@ -108,9 +108,9 @@ def findSteps(data):
 		rv = []
 		for reading in data:
 			# Append until min window reached
-			xWindow.append(reading[3])
-			yWindow.append(reading[1])
-			zWindow.append(reading[2])
+			xWindow.append(reading[1])
+			yWindow.append(reading[2])
+			zWindow.append(reading[3])
 			if len(xWindow) < MIN_WINDOW_SIZE:
 				continue
 
