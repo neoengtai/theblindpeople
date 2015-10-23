@@ -107,8 +107,10 @@ def THREAD_IMU():
 
 			if imu.IMURead():
 				data = imu.getIMUData()
-				# Z axis facing front, X axis facing left
-				heading = math.atan2(data['compass'][0],-data['compass'][2])
+				# Using compass: Z axis facing front, X axis facing left
+				# heading = math.atan2(data['compass'][0],-data['compass'][2])
+				# Using RPY: Z facing up, X facing front
+				heading = data['fusionPose'][2]
 				acc = imu.getAccelResiduals()
 				buf.append((data['timestamp'],acc[2],acc[0],acc[1],heading))
 				# f.write(str(data['timestamp'])+","+str(acc[2])+","+str(acc[0])+","+str(acc[1])+","+str(heading)+"\n")
@@ -274,9 +276,9 @@ if (not imu.IMUInit()):
 
 # Set params for the imu (r,p,y) values calculation
 imu.setSlerpPower(0.02)
-imu.setGyroEnable(False)
-imu.setAccelEnable(False)
-imu.setCompassEnable(False)
+imu.setGyroEnable(True)
+imu.setAccelEnable(True)
+imu.setCompassEnable(True)
 
 if (not pressure.pressureInit()):
 	print("Pressure sensor Init Failed")
@@ -295,9 +297,13 @@ print (routes)
 # Initialize the first heading
 while True:
 	if imu.IMURead():
-		compass = imu.getCompass()
+		# compass = imu.getCompass()
 		# Z axis facing front, X axis facing left
-		currentHeading = math.atan2(compass[0],-compass[2])
+		# currentHeading = math.atan2(compass[0],-compass[2])
+
+		#Using RPY:
+		data = imu.getFusionData()
+		currentHeading = data[2]
 		break
 
 t_imu = threading.Thread(target=THREAD_IMU)
