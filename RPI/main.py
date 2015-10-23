@@ -32,13 +32,13 @@ def getSrcDestNodes():
 		while v is None:
 			feedbackGiver.audioFeedback(clip)
 			print(k + " building: ")
-			# buildingID = keypad.getUserInput() #TODO: change to actual keypad getKey
-			building = input() #TODO: change to actual keypad getKey
+			building = keypad.getUserInput() #TODO: change to actual keypad getKey
+			# building = input() #TODO: change to actual keypad getKey
 			
 			feedbackGiver.audioFeedback("enter level")
 			print (k + " level: ")
-			# level = keypad.getUserInput() #TODO: change to actual keypad getKey
-			level = input() #TODO: change to actual keypad getKey
+			level = keypad.getUserInput() #TODO: change to actual keypad getKey
+			# level = input() #TODO: change to actual keypad getKey
 				
 			if mapManager.get_map(building, level) is None:
 				feedbackGiver.audioFeedback("error")
@@ -47,8 +47,8 @@ def getSrcDestNodes():
 			
 			feedbackGiver.audioFeedback("enter node")
 			print(k + " nodeID: ")
-			# nodeId = keypad.getUserInput() #TODO: change to actual keypad getKey
-			nodeId = input() #TODO: change to actual keypad getKey
+			nodeId = keypad.getUserInput() #TODO: change to actual keypad getKey
+			# nodeId = input() #TODO: change to actual keypad getKey
 
 			if mapManager.get_node(building,level,nodeId) is None:
 				feedbackGiver.audioFeedback("error")
@@ -93,6 +93,7 @@ def computeHeight(pressure):
 
 def THREAD_IMU():
 	while True:
+		# f = open("accel.csv","a")
 		buf = []
 		s_time = time.time()
 		
@@ -110,8 +111,10 @@ def THREAD_IMU():
 				heading = math.atan2(data['compass'][0],-data['compass'][2])
 				acc = imu.getAccelResiduals()
 				buf.append((data['timestamp'],acc[2],acc[0],acc[1],heading))
+				# f.write(str(data['timestamp'])+","+str(acc[2])+","+str(acc[0])+","+str(acc[1])+","+str(heading)+"\n")
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
+		# f.close()
 
 def THREAD_AUDIO(*args):
 	global audioLock

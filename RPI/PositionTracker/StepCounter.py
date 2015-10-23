@@ -11,9 +11,9 @@ MAX_WINDOW_SIZE = 100
 MIN_WINDOW_SIZE = 60
 
 # Too low may result in more false positives. Too high results in less counts
-MIN_AMP_X = 0.09
-MIN_AMP_Y = 0.07
-MIN_AMP_Z = 0.06
+MIN_AMP_X = 0.07 # peak to peak
+MIN_AMP_Y = 0.07 # half of the whole amplitude
+MIN_AMP_Z = 0.06 
 
 # Filter Params
 FILTER_ORDER = 3
