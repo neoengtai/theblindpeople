@@ -258,9 +258,9 @@ wifi = testConnection()
 positionTracker = PT.PositionTracker(0,0,pace)
 if wifi:
 	mapManager = MM.MapManager("Online")
-	feedbackGiver.audiofeedback("connected")
+	feedbackGiver.audioFeedback("connected")
 else:
-	feedbackGiver.audiofeedback("not connected")
+	feedbackGiver.audioFeedback("not connected")
 	mapManager = MM.MapManager("Offline")
 
 # IMU init sequence. Can't seem to put it in a function :(
