@@ -1,6 +1,5 @@
 
 # sys.path.append('.')
-# import math
 
 import os.path
 import sys
@@ -13,14 +12,13 @@ from PositionTracker import PositionTracker as PT
 import queue
 import threading
 import time
+import math
+import urllib.request
+from socket import timeout
 
 SETTINGS_FILE = "Configuration/RTIMULib"
 CALIBRATION_FILE = "Configuration/profile.ini"
 IMU_SAMPLING_PERIOD = 0.02 	# In seconds
-
-BUILDING_LIST = {	1: "COM1",
-					2: "COM2",
-				}
 
 def getSrcDestNodes():
 	places = {"Source": None, "Destination": None}
@@ -32,33 +30,28 @@ def getSrcDestNodes():
 			clip = "enter ending building"
 
 		while v is None:
-			building = None
-
-			# feedbackGiver.audioFeedback(clip)
+			feedbackGiver.audioFeedback(clip)
 			print(k + " building: ")
-			buildingID = int(keypad.dummyGetKey()) #TODO: change to actual keypad getKey
-			if buildingID in BUILDING_LIST:
-				building = BUILDING_LIST[buildingID]
-			else:
-				# feedbackGiver.audioFeedback("error")
-				print ("Building not in list!")
-				continue
+			building = keypad.getUserInput() #TODO: change to actual keypad getKey
+			# building = input() #TODO: change to actual keypad getKey
 			
-			# feedbackGiver.audioFeedback("enter level")
+			feedbackGiver.audioFeedback("enter level")
 			print (k + " level: ")
-			level = keypad.dummyGetKey() #TODO: change to actual keypad getKey
+			level = keypad.getUserInput() #TODO: change to actual keypad getKey
+			# level = input() #TODO: change to actual keypad getKey
 				
 			if mapManager.get_map(building, level) is None:
-				# feedbackGiver.audioFeedback("error")
+				feedbackGiver.audioFeedback("error")
 				print ("Cannot find map!")
 				continue
 			
-			# feedbackGiver.audioFeedback("enter node")
+			feedbackGiver.audioFeedback("enter node")
 			print(k + " nodeID: ")
-			nodeId = keypad.dummyGetKey() #TODO: change to actual keypad getKey
+			nodeId = keypad.getUserInput() #TODO: change to actual keypad getKey
+			# nodeId = input() #TODO: change to actual keypad getKey
 
 			if mapManager.get_node(building,level,nodeId) is None:
-				# feedbackGiver.audioFeedback("error")
+				feedbackGiver.audioFeedback("error")
 				print ("Invalid node!")
 				continue
 			else:
@@ -76,6 +69,7 @@ def loadUserProfile():
 		f = open(CALIBRATION_FILE)
 		val = f.readline().split('=')
 		pace = float(val[1])
+	return pace
 
 def computeHeight(pressure):
 	#  computeHeight() - the conversion uses the formula:
@@ -99,66 +93,146 @@ def computeHeight(pressure):
 
 def THREAD_IMU():
 	while True:
+		# f = open("accel.csv","a")
 		buf = []
 		s_time = time.time()
 		
 		while True:
 			if time.time() - s_time >= 5:
-				pt = time.time()
+				# pt = time.time()
 				imu_Q.put(buf)
-				print ("Put time: ", (time.time() - pt))
-				print ("Rate: ", len(buf)/(pt - s_time))
+				# print ("Put time: ", (time.time() - pt))
+				# print ("IMURate: ", len(buf)/(pt - s_time))
 				break
 
 			if imu.IMURead():
 				data = imu.getIMUData()
-				buf.append((data['timestamp'],)+data['accel']+(data['fusionPose'][2],))
+				# Using compass: Z axis facing front, X axis facing left
+				# heading = math.atan2(data['compass'][0],-data['compass'][2])
+				# Using RPY: Z facing up, X facing front
+				heading = data['fusionPose'][2]
+				acc = imu.getAccelResiduals()
+				buf.append((data['timestamp'],acc[2],acc[0],acc[1],heading))
+				# f.write(str(data['timestamp'])+","+str(acc[2])+","+str(acc[0])+","+str(acc[1])+","+str(heading)+"\n")
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
+		# f.close()
 
+def THREAD_AUDIO(*args):
+	global audioLock
 
-# def THREAD_UART():
+	if audioLock.acquire(blocking=True, timeout=5):
+		feedbackGiver.audioFeedback(args[0])
+		audioLock.release()
 
-# def producer(threadName, delay):
-# 	while True:
-# 		if q.qsize() >= 3:
-# 			print(threadName + " size reached")
-# 		else:
-# 			_list = []
-# 			for i in range(1,11):
-# 				_list.append(i)
+#Returns direction in degree
+def resolveRealAngle(currentX, currentY, nodeX, nodeY, northAt):
 
-# 			print (threadName + "putting")
-# 			q.put(_list)
-# 		time.sleep(delay)
+	#calculate distance
+	diffX = nodeX - currentX
+	diffY = nodeY - currentY
+		
+	angleRad = math.atan2(diffX, diffY)
+	angleDeg = math.degrees(angleRad)
+		
+	angleDegPositive = ((angleDeg + 360) %360)
+		
+	angleResult = (angleDegPositive - northAt + 360) % 360
+		
+	return angleResult
+	
+def getDirections (node, northAt, currX, currY, heading): 
+	separation = math.hypot((node['x']- currX),(node['y'] - currY))
 
-# def consumer(threadName, delay):
-# 	while True:
-# 		_list = q.get()
-# 		print (threadName + ":"  + str(_list))
-# 		time.sleep(delay)
+	# print ("To node: ", tempNode["nodeId"])
+	angle = resolveRealAngle(currX, currY, node['x'], node['y'], northAt)
+	# TEST
+	print ("To face: ", angle)
 
+	difference = angle - ((math.degrees(heading) + 360) %360)
 
+	if difference > 180:
+		difference -= 360 #left
+	elif difference < -180:
+		difference += 360 #right		
+		
+	return separation, difference
+	#Return the distance to node and the angle to change
+		
+	#audioDir = self.dataToString(0,int(difference))
+	#audioDist = self.dataToString(1,int(separation/pace)) + " steps"
+	#self.audioFeedback(audioDir+' '+audioDist)
+		
+# Convert data to string format for audio feedback
+# function 0 : direction
+#def dataToString(function, data):
+def feedbackResolver(function, data):
+	result = [] 
+	if function == 0:
+		if data in range(-20,20):
+			return "continue straight"
+		elif data in range(20,65):
+			return "turn slight right"
+		elif data in range(65,110):
+			return "turn right"
+		elif data in range(110,181):
+			return "U turn"
+		elif data in range(-65,-20):
+			return "turn slight left"
+		elif data in range(-110,-65):
+			return "turn left"
+		elif data in range(-180, -110):
+			return "U turn"
+	elif function == 1:
+		return ' '.join(list(str(data)))
 
-# Shared data: 1
-# 1 -> Current position (x,y)
+def generateFeedback(dist, angle, pace):
+	angleString = feedbackResolver(0, int(angle))
+	angleDist = feedbackResolver(1,int(dist/pace)) + " steps"
+	
+	feedbackString = angleString+' '+angleDist
+	
+	return feedbackString
 
-# Consumers: 2
-# 1 -> PositionTracker takes accelerometer data and determines current position
-# 2 -> FeedbackGiver takes UART data and provides feeback
+def isOvershot(currentNode, nextNode, currX, currY):
+	
+	diffX = nextNode['x'] - currentNode['x'] 
+	diffY = nextNode['y'] - currentNode['y']
+	overshotY = False
+	overshotX = False
+	
+	if(diffY > 0):
+		if(currY > nextNode['y']):
+			overshotY = True
+	elif(diffY < 0):
+		if(currY < nextNode['y']):
+			overshotY = True
+	else:
+		overshotY = True	
 
-# Producers: 2
-# 1 -> Sample accelerometer. Data only used by PositionTracker
-# 2 -> UART from arduino. Data only used by FeedbackGiver
+	if(diffX > 0):
+		if(currX > nextNode['x']):
+			overshotX = True
+	elif(diffX < 0):
+		if(currX < nextNode['x']):
+			overshotX = True
+	else:
+		overshotX = True
+	
+	return (overshotX and overshotY)
 
-# q = queue.Queue()
-
-# producer1 = threading.Thread(target=producer, args = ("P1", 0.5))
-
-# consumer1 = threading.Thread(target=consumer, args = ("C1", 0.7))
-
-# producer1.start()
-# consumer1.start()
+def testConnection():
+	connectionFlag = False
+	try:
+		urllib.request.urlopen("http://www.google.com", timeout = 3)
+		connectFlag = True
+		print ("Got connection!")
+	except urllib.error.URLError as e:
+		print ("No Connection")
+	except timeout:
+		print("timeout!")
+	
+	return connectionFlag
 
 #START OF PROGRAM
 # ---------------------------------Variables-----------------------------------
@@ -170,17 +244,24 @@ positionTracker = None
 pace = None
 source, destination = None, None
 imu_Q = None
-thread_imu_pause_flag = False
+currentHeading = None
+audioLock = threading.Lock()
+continueWalking = False
 
 # -------------------------------Init Section----------------------------------
-loadUserProfile()
+pace = loadUserProfile()
 imu_Q = queue.Queue()
 keypad = KP.Keypad()
 #init Arduino
 feedbackGiver = FG.FeedbackGiver()
-#init WiFi (just to test for connection)
+wifi = testConnection()
 positionTracker = PT.PositionTracker(0,0,pace)
-mapManager = MM.MapManager()
+if wifi:
+	mapManager = MM.MapManager("Online")
+	feedbackGiver.audiofeedback("connected")
+else:
+	feedbackGiver.audiofeedback("not connected")
+	mapManager = MM.MapManager("Offline")
 
 # IMU init sequence. Can't seem to put it in a function :(
 if not os.path.exists(SETTINGS_FILE + ".ini"):
@@ -215,6 +296,18 @@ routes = RF.findRoute(mapManager, source[2], source[0], source[1],
 					destination[2], destination[0], destination[1])
 print (routes)
 
+# Initialize the first heading
+while True:
+	if imu.IMURead():
+		# compass = imu.getCompass()
+		# Z axis facing front, X axis facing left
+		# currentHeading = math.atan2(compass[0],-compass[2])
+
+		#Using RPY:
+		data = imu.getFusionData()
+		currentHeading = data[2]
+		break
+
 t_imu = threading.Thread(target=THREAD_IMU)
 # t_uart = threading.Thread(target=THREAD_UART)
 
@@ -232,6 +325,10 @@ for route in routes:
 		currentNode = mapManager.get_node(building,level,path[i])
 		nextNode = mapManager.get_node(building,level,path[i+1])
 		positionTracker.setCurrentPosition(currentNode['x'],currentNode['y'])
+		dist, angle = getDirections(nextNode, northAt, currentNode['x'], currentNode['y'], currentHeading)
+		feedbackString = generateFeedback(dist, angle, pace)
+		thread_audio = threading.Thread(target=THREAD_AUDIO,args=[feedbackString])
+		thread_audio.start()
 
 		while True:
 			# This call blocks until the IMU thread puts data into the queue
@@ -239,4 +336,35 @@ for route in routes:
 			positionTracker.updatePosition(imuData,northAt)
 			imu_Q.task_done()
 
-			print ("Current pos: ", positionTracker.getCurrentPosition())
+			currentPos = positionTracker.getCurrentPosition()
+			currentHeading = imuData[-1][4]
+			print ("X: %.0f Y: %.0f" % (currentPos[0],currentPos[1]))
+			print ("Current heading: ", math.degrees(currentHeading))
+
+			dist, angle = getDirections(nextNode, northAt, currentPos[0], currentPos[1], currentHeading)
+			if(isOvershot(currentNode, nextNode, currentPos[0], currentPos[1])):
+				try:
+					followingNode = mapManager.get_node(building,level,path[i+2]) #NOTE IF i+2 out of bounds then last ode liao. must cater
+					currentAngle = resolveRealAngle(currentNode['x'],currentNode['y'],nextNode['x'],nextNode['y'],northAt)
+					nextAngle = resolveRealAngle(nextNode['x'], nextNode['y'], followingNode['x'], followingNode['y'],northAt)
+					continueWalking = ((nextAngle <= (currentAngle+15)) or (nextAngle >=(currentAngle-15)))
+				except IndexError:
+					pass
+			else:
+				continueWalking = False
+			if (math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 100) or continueWalking:
+				# audio feedback node reached
+				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node "+str(nextNode['nodeId'])])
+				print ("Node reached: ", nextNode['nodeId']) # TODO change to audio feedback
+				thread_audio.start()
+				break
+			else:
+				#audiofeedback dir and steps
+				feedbackString = generateFeedback(dist, angle, pace)
+				thread_audio = threading.Thread(target=THREAD_AUDIO,args=[feedbackString])
+				thread_audio.start()
+
+if audioLock.acquire(blocking=True, timeout=5):
+	feedbackGiver.audioFeedback("you reached your destination")
+	print ("End")
+	audioLock.release()
