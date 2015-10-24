@@ -258,7 +258,9 @@ wifi = testConnection()
 positionTracker = PT.PositionTracker(0,0,pace)
 if wifi:
 	mapManager = MM.MapManager("Online")
+	feedbackGiver.audiofeedback("connected")
 else:
+	feedbackGiver.audiofeedback("not connected")
 	mapManager = MM.MapManager("Offline")
 
 # IMU init sequence. Can't seem to put it in a function :(
@@ -352,7 +354,7 @@ for route in routes:
 				continueWalking = False
 			if (math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 100) or continueWalking:
 				# audio feedback node reached
-				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node reached"])
+				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node "+str(nextNode['nodeId'])])
 				print ("Node reached: ", nextNode['nodeId']) # TODO change to audio feedback
 				thread_audio.start()
 				break
@@ -363,6 +365,6 @@ for route in routes:
 				thread_audio.start()
 
 if audioLock.acquire(blocking=True, timeout=5):
-	feedbackGiver.audioFeedback("reached")
+	feedbackGiver.audioFeedback("you reached your destination")
 	print ("End")
 	audioLock.release()
