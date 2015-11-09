@@ -62,7 +62,7 @@ def getSrcDestNodes():
 
 def loadUserProfile():
 	if not os.path.exists(CALIBRATION_FILE):
-		pace = 35.0
+		pace = 60.0
 		print("No profile found. Using default pace of 35 cm/step")
 	else:
 		#Note: no checking of whether or not first line is PACE_AVG
