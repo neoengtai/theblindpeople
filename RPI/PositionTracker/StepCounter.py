@@ -5,15 +5,15 @@ import math
 
 # Number of data points in 1 step(pace/sampling_rate)
 # Use the longest time(slowest pace) taken for 1 step here
-MAX_WINDOW_SIZE = 32
+MAX_WINDOW_SIZE = 70
 # Use the shortest time(fastest pace) taken for 1 step here
 # For removing any attemps to find steps if the current window has lesser data points than this
-MIN_WINDOW_SIZE = 23
+MIN_WINDOW_SIZE = 45
 
 # Too low may result in more false positives. Too high results in less counts
-MIN_AMP_X = 0.36 # peak to peak
-MIN_AMP_Y = 0.12 # half of the whole amplitude
-MIN_AMP_Z = 0.37 
+MIN_AMP_X = 0.20 # peak to peak
+MIN_AMP_Y = 0.07 # half of the whole amplitude
+MIN_AMP_Z = 0.15
 
 # Filter Params
 FILTER_ORDER = 3
@@ -78,8 +78,9 @@ def decideX(data, minAmplitude):
 
 def decideY(data, minAmplitude):
 	slope = data[-1] - data[0]
+	amplitude = max(data) - min(data)
 
-	if abs(slope) >= minAmplitude:
+	if abs(amplitude) >= minAmplitude:
 		if slope > 0:
 			return 1
 		else:

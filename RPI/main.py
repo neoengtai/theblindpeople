@@ -62,8 +62,8 @@ def getSrcDestNodes():
 
 def loadUserProfile():
 	if not os.path.exists(CALIBRATION_FILE):
-		pace = 60.0
-		print("No profile found. Using default pace of 35 cm/step")
+		pace = 40.0
+		print("No profile found. Using default pace of 40 cm/step")
 	else:
 		#Note: no checking of whether or not first line is PACE_AVG
 		f = open(CALIBRATION_FILE)
@@ -112,7 +112,7 @@ def THREAD_IMU():
 				# Using RPY: Z facing up, X facing front
 				heading = data['fusionPose'][2]
 				acc = imu.getAccelResiduals()
-				buf.append((data['timestamp'],acc[2],acc[0],acc[1],heading))
+				buf.append((data['timestamp'],acc[0],acc[1],acc[2],heading))
 				# f.write(str(data['timestamp'])+","+str(acc[2])+","+str(acc[0])+","+str(acc[1])+","+str(heading)+"\n")
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
