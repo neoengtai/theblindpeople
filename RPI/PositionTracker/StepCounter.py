@@ -11,9 +11,9 @@ MAX_WINDOW_SIZE = 70
 MIN_WINDOW_SIZE = 45
 
 # Too low may result in more false positives. Too high results in less counts
-MIN_AMP_X = 0.20 # peak to peak
-MIN_AMP_Y = 0.07 # half of the whole amplitude
-MIN_AMP_Z = 0.15
+MIN_AMP_X = 0.13 # peak to peak
+MIN_AMP_Y = 0.19 # min amplitude for moving around on the spot
+MIN_AMP_Z = 0.12
 
 # Filter Params
 FILTER_ORDER = 3
@@ -32,7 +32,7 @@ def decideX(data, minAmplitude):
 	# Step is valid if this pattern is observed:
 	# center -> down -> min/max point -> center -> max/min point -> center
 	if amplitude >= minAmplitude:
-		zeroRange = (minpoint + 0.25*amplitude, maxpoint - 0.25*amplitude)
+		zeroRange = (minpoint + 0.35*amplitude, maxpoint - 0.35*amplitude)
 		# print ("Amp ", amplitude)
 		# Conditions to be met
 		bools = {	"center1":False,
@@ -77,16 +77,12 @@ def decideX(data, minAmplitude):
 	return False
 
 def decideY(data, minAmplitude):
-	slope = data[-1] - data[0]
 	amplitude = max(data) - min(data)
 
 	if abs(amplitude) >= minAmplitude:
-		if slope > 0:
-			return 1
-		else:
-			return -1
+		return 0
 
-	return 0
+	return 1
 
 def decideZ(data, minAmplitude):
 	if (max(data) - min(data)) >= minAmplitude:

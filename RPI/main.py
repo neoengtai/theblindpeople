@@ -62,8 +62,8 @@ def getSrcDestNodes():
 
 def loadUserProfile():
 	if not os.path.exists(CALIBRATION_FILE):
-		pace = 40.0
-		print("No profile found. Using default pace of 40 cm/step")
+		pace = 35.0
+		print("No profile found. Using default pace of 35 cm/step")
 	else:
 		#Note: no checking of whether or not first line is PACE_AVG
 		f = open(CALIBRATION_FILE)
@@ -93,7 +93,7 @@ def computeHeight(pressure):
 
 def THREAD_IMU():
 	while True:
-		# f = open("accel.csv","a")
+		#f = open("accel.csv","a")
 		buf = []
 		s_time = time.time()
 		
@@ -113,10 +113,10 @@ def THREAD_IMU():
 				heading = data['fusionPose'][2]
 				acc = imu.getAccelResiduals()
 				buf.append((data['timestamp'],acc[0],acc[1],acc[2],heading))
-				# f.write(str(data['timestamp'])+","+str(acc[2])+","+str(acc[0])+","+str(acc[1])+","+str(heading)+"\n")
+				#f.write(str(data['timestamp'])+","+str(acc[0])+","+str(acc[1])+","+str(acc[2])+","+str(heading)+"\n")
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
-		# f.close()
+		#f.close()
 
 def THREAD_AUDIO(*args):
 	global audioLock
@@ -324,7 +324,8 @@ for route in routes:
 	for i in range(0,len(path)-1):
 		currentNode = mapManager.get_node(building,level,path[i])
 		nextNode = mapManager.get_node(building,level,path[i+1])
-		positionTracker.setCurrentPosition(currentNode['x'],currentNode['y'])
+		if i == 0:
+			positionTracker.setCurrentPosition(currentNode['x'],currentNode['y'])
 		dist, angle = getDirections(nextNode, northAt, currentNode['x'], currentNode['y'], currentHeading)
 		feedbackString = generateFeedback(dist, angle, pace)
 		thread_audio = threading.Thread(target=THREAD_AUDIO,args=[feedbackString])
@@ -352,7 +353,7 @@ for route in routes:
 					pass
 			else:
 				continueWalking = False
-			if (math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= 100) or continueWalking:
+			if (math.hypot((nextNode['x']-currentPos[0]),(nextNode['y']-currentPos[1])) <= pace+5) or continueWalking:
 				# audio feedback node reached
 				thread_audio = threading.Thread(target=THREAD_AUDIO,args=["node "+str(nextNode['nodeId'])])
 				print ("Node reached: ", nextNode['nodeId']) # TODO change to audio feedback
