@@ -5,15 +5,15 @@ import math
 
 # Number of data points in 1 step(pace/sampling_rate)
 # Use the longest time(slowest pace) taken for 1 step here
-MAX_WINDOW_SIZE = 70
+MAX_WINDOW_SIZE = 75
 # Use the shortest time(fastest pace) taken for 1 step here
 # For removing any attemps to find steps if the current window has lesser data points than this
-MIN_WINDOW_SIZE = 45
+MIN_WINDOW_SIZE = 65
 
 # Too low may result in more false positives. Too high results in less counts
 MIN_AMP_X = 0.15 # peak to peak
-MIN_AMP_Y = 0.19 # min amplitude for moving around on the spot
-MIN_AMP_Z = 0.15
+MIN_AMP_Y = 0.10 # min amplitude for moving around on the spot
+MIN_AMP_Z = 0.23
 
 # Filter Params
 FILTER_ORDER = 3
@@ -32,7 +32,7 @@ def decideX(data, minAmplitude):
 	# Step is valid if this pattern is observed:
 	# center -> down -> min/max point -> center -> max/min point -> center
 	if amplitude >= minAmplitude:
-		zeroRange = (minpoint + 0.35*amplitude, maxpoint - 0.35*amplitude)
+		zeroRange = (minpoint + 0.25*amplitude, maxpoint - 0.25*amplitude)
 		# print ("Amp ", amplitude)
 		# Conditions to be met
 		bools = {	"center1":False,
@@ -77,12 +77,8 @@ def decideX(data, minAmplitude):
 	return False
 
 def decideY(data, minAmplitude):
-	amplitude = max(data) - min(data)
-
-	if abs(amplitude) >= minAmplitude:
-		return 0
-
-	return 1
+	# unused for now
+	return 0
 
 def decideZ(data, minAmplitude):
 	if (max(data) - min(data)) >= minAmplitude:
@@ -101,7 +97,6 @@ def findSteps(data):
 		return None
 	# Potential steps exists in the data
 	else:
-		ySlope = 0
 		rv = []
 		for reading in data:
 			# Append until min window reached
@@ -117,9 +112,7 @@ def findSteps(data):
 			# Identify steps
 			# X given high priority, since y,z can be true if user moves on the spot
 			if decideX(listX, MIN_AMP_X):
-				slope = decideY(listY, MIN_AMP_Y)
-
-				yd = not (ySlope == slope) 
+				yd = decideY(listY, MIN_AMP_Y) 
 				zd = decideZ(listZ, MIN_AMP_Z)
 
 				print ("Y ", yd, " Z ", zd)
@@ -133,7 +126,6 @@ def findSteps(data):
 					rv.append(reading[4])
 					#print(reading[4]) # printing the timestamps
 
-				ySlope = slope
 		
 		return rv
 def calculateStepDistance(averagePacing, headingMoved, northAt):
