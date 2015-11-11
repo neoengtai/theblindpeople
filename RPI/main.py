@@ -93,7 +93,7 @@ def computeHeight(pressure):
 
 def THREAD_IMU():
 	while True:
-		#f = open("accel.csv","a")
+		f = open("accel.csv","a")
 		buf = []
 		s_time = time.time()
 		
@@ -113,10 +113,10 @@ def THREAD_IMU():
 				heading = data['fusionPose'][2]
 				acc = imu.getAccelResiduals()
 				buf.append((data['timestamp'],acc[0],acc[1],acc[2],heading))
-				#f.write(str(data['timestamp'])+","+str(acc[0])+","+str(acc[1])+","+str(acc[2])+","+str(heading)+"\n")
+				f.write(str(data['timestamp'])+","+str(acc[0])+","+str(acc[1])+","+str(acc[2])+","+str(heading)+"\n")
 
 			time.sleep(0.5*IMU_SAMPLING_PERIOD)
-		#f.close()
+		f.close()
 
 def THREAD_AUDIO(*args):
 	global audioLock
@@ -225,7 +225,7 @@ def testConnection():
 	connectionFlag = False
 	try:
 		urllib.request.urlopen("http://www.google.com", timeout = 3)
-		connectFlag = True
+		connectionFlag = True
 		print ("Got connection!")
 	except urllib.error.URLError as e:
 		print ("No Connection")

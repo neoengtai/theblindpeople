@@ -11,9 +11,9 @@ MAX_WINDOW_SIZE = 70
 MIN_WINDOW_SIZE = 45
 
 # Too low may result in more false positives. Too high results in less counts
-MIN_AMP_X = 0.13 # peak to peak
+MIN_AMP_X = 0.15 # peak to peak
 MIN_AMP_Y = 0.19 # min amplitude for moving around on the spot
-MIN_AMP_Z = 0.12
+MIN_AMP_Z = 0.15
 
 # Filter Params
 FILTER_ORDER = 3
@@ -126,7 +126,7 @@ def findSteps(data):
 
 				# If step found, clear windows, restart from top
 				# if not (ySlope == slope) or decideZ(fz, MIN_AMP_Z):
-				if yd and zd:
+				if yd or zd:
 					xWindow.clear()
 					yWindow.clear()
 					zWindow.clear()
