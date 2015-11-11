@@ -98,7 +98,7 @@ def THREAD_IMU():
 		s_time = time.time()
 		
 		while True:
-			if time.time() - s_time >= 5:
+			if time.time() - s_time >= 3:
 				# pt = time.time()
 				imu_Q.put(buf)
 				# print ("Put time: ", (time.time() - pt))
@@ -124,6 +124,7 @@ def THREAD_AUDIO(*args):
 	if audioLock.acquire(blocking=True, timeout=5):
 		feedbackGiver.audioFeedback(args[0])
 		audioLock.release()
+		time.sleep(0.5)
 
 #Returns direction in degree
 def resolveRealAngle(currentX, currentY, nodeX, nodeY, northAt):
@@ -169,15 +170,15 @@ def getDirections (node, northAt, currX, currY, heading):
 def feedbackResolver(function, data):
 	result = [] 
 	if function == 0:
-		if data in range(-20,20):
+		if data in range(-15,15):
 			return "continue straight"
-		elif data in range(20,65):
+		elif data in range(15,65):
 			return "turn slight right"
 		elif data in range(65,110):
 			return "turn right"
 		elif data in range(110,181):
 			return "U turn"
-		elif data in range(-65,-20):
+		elif data in range(-65,-15):
 			return "turn slight left"
 		elif data in range(-110,-65):
 			return "turn left"

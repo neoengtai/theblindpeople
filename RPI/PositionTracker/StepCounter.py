@@ -5,15 +5,15 @@ import math
 
 # Number of data points in 1 step(pace/sampling_rate)
 # Use the longest time(slowest pace) taken for 1 step here
-MAX_WINDOW_SIZE = 75
+MAX_WINDOW_SIZE = 90
 # Use the shortest time(fastest pace) taken for 1 step here
 # For removing any attemps to find steps if the current window has lesser data points than this
-MIN_WINDOW_SIZE = 65
+MIN_WINDOW_SIZE = 55
 
 # Too low may result in more false positives. Too high results in less counts
 MIN_AMP_X = 0.15 # peak to peak
 MIN_AMP_Y = 0.10 # min amplitude for moving around on the spot
-MIN_AMP_Z = 0.23
+MIN_AMP_Z = 0.25
 
 # Filter Params
 FILTER_ORDER = 3
@@ -71,17 +71,18 @@ def decideX(data, minAmplitude):
 			elif bools["center3"] == False:
 				if x >= zeroRange[0] and x <= zeroRange[1]:
 					bools["center3"] = True
-					# print ("C3 reached")
+					print ("-------------X ", amplitude)
 					return True
 
 	return False
 
 def decideY(data, minAmplitude):
-	# unused for now
+	#return decideX(data, minAmplitude)
 	return 0
 
 def decideZ(data, minAmplitude):
 	if (max(data) - min(data)) >= minAmplitude:
+		print ("--------------Z ", (max(data)-min(data)))
 		return True;
 	return False;
 
@@ -115,7 +116,7 @@ def findSteps(data):
 				yd = decideY(listY, MIN_AMP_Y) 
 				zd = decideZ(listZ, MIN_AMP_Z)
 
-				print ("Y ", yd, " Z ", zd)
+				#print ("Y ", yd, " Z ", zd)
 
 				# If step found, clear windows, restart from top
 				# if not (ySlope == slope) or decideZ(fz, MIN_AMP_Z):
